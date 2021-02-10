@@ -1,9 +1,10 @@
 package pisi.unitedmeows.meowlib.async;
 
+import java.util.HashMap;
+
 public class TaskPool {
 
-    /*
-     * remove
-     * */
+    /* custom list required */
+
 
 }
