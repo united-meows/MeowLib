@@ -10,6 +10,7 @@ public class MeowLib {
 
     /* change this to meowlib map */
     private static HashMap<MLibSettings, MLibSetting<?>> SETTINGS;
+
     static {
         SETTINGS = new HashMap<>();
         setup();

@@ -27,7 +27,7 @@ public abstract class Task<X> {
     }
 
 
-    public Result result() {
+    public Result<X> result() {
         return result;
     }
 

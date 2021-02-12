@@ -1,9 +1,7 @@
 package test;
 
-import pisi.unitedmeows.meowlib.MeowLib;
 import pisi.unitedmeows.meowlib.async.TaskPool;
 import pisi.unitedmeows.meowlib.thread.kThread;
-import static pisi.unitedmeows.meowlib.MeowLib.*;
 
 public class Start {
 
