@@ -4,15 +4,14 @@ import pisi.unitedmeows.meowlib.MeowLib;
 
 public class MeowList<X> {
 
-    private Tail<X> tailStart;
-    private Tail lastTail;
+    private Tail<X> currentTail;
 
     public MeowList() {
-        tailStart = new Tail<X>();
+
     }
 
     public void push(X element) {
-        
+
     }
 
 }

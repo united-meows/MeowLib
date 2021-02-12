@@ -4,9 +4,9 @@ import java.lang.reflect.Array;
 
 public class Tail<X> {
 
-    private Tail down;
+    private Tail<X> down;
 
-    private X[] elements = new X[5];
+    private X[] elements;
 
 
 
@@ -31,11 +31,6 @@ public class Tail<X> {
     3 asdad
     4 adsasdas
     5
-
-
-
-
-
      */
 
 
