@@ -4,12 +4,13 @@ import pisi.unitedmeows.meowlib.etc.IAction;
 import pisi.unitedmeows.meowlib.etc.MLibSetting;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 public class MeowLib {
 
     /* change this to meowlib map */
-    private static HashMap<MLibSettings, MLibSetting<?>> SETTINGS;
+    private static HashMap<MLibSettings, MLibSetting<Serializable>> SETTINGS;
 
     static {
         SETTINGS = new HashMap<>();
@@ -18,11 +19,13 @@ public class MeowLib {
 
     private static void setup() {
         for (MLibSettings setting : MLibSettings.values()) {
-            SETTINGS.put(setting, new MLibSetting<>(setting, setting.getValue()));
+            SETTINGS.put(setting, new MLibSetting<Serializable>(setting, (Serializable)setting.getValue()));
+
+            System.out.println(setting.getName() + " " + setting.getValue());
         }
     }
 
-    public HashMap<MLibSettings, MLibSetting<?>> settings() {
+    public static HashMap<MLibSettings, MLibSetting<Serializable>> settings() {
         return SETTINGS;
     }
 

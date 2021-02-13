@@ -1,8 +1,9 @@
 package pisi.unitedmeows.meowlib.etc;
 
-import pisi.unitedmeows.meowlib.MeowLib;
 
-public class MLibSetting<X> {
+import java.io.Serializable;
+
+public class MLibSetting<X extends Serializable> {
 
     private MLibSettings label;
     private X value;

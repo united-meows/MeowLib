@@ -6,7 +6,7 @@ public abstract class Task<X> {
     protected Result<X> result;
     private long startTime;
 
-    public abstract void run();
+    public abstract X run();
 
     public void pre() {
         state = State.RUNNING;
