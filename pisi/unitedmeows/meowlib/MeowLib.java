@@ -21,7 +21,6 @@ public class MeowLib {
         for (MLibSettings setting : MLibSettings.values()) {
             SETTINGS.put(setting, new MLibSetting<Serializable>(setting, (Serializable)setting.getValue()));
 
-            System.out.println(setting.getName() + " " + setting.getValue());
         }
     }
 

@@ -30,7 +30,10 @@ public class TaskWorker extends Thread {
             }
             runningTask = taskQueue.poll();
             runningTask.pre();
-            runningTask.run();
+            Task<?> result = runningTask.run();
+            if (runningTask.getAssign() != null) {
+               /* TODO: ^^._.^^ */
+            }
             runningTask.post();
         }
     }
@@ -52,7 +55,7 @@ public class TaskWorker extends Thread {
 
     public boolean isBusy() {
         if (isWorking()) {
-            return runningTask.timeElapsed() >= (long) MeowLib.settings().get(MLibSettings.ASYNC_WORKER_BUSY).getValue();;
+            return runningTask.timeElapsed() >= (long) MeowLib.settings().get(MLibSettings.ASYNC_WORKER_BUSY).getValue();
         }
         return false;
     }

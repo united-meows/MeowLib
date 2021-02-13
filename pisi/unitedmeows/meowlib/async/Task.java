@@ -5,18 +5,32 @@ public abstract class Task<X> {
     private State state = State.IDLE;
     protected Result<X> result;
     private long startTime;
+    private IAsyncAction action;
+    private Object assign;
 
-    public abstract X run();
+    public Task(IAsyncAction action, Object assign) {
+        this.action = action;
+        this.assign = assign;
+    }
 
     public void pre() {
         state = State.RUNNING;
-        startTime = System.currentTimeMillis();
+        startTime = runningTime();
     }
+
+    public Task<?> run() {
+        return action.start();
+    }
+
 
     public void post() {
         state = State.FINISHED;
     }
 
+
+    public Object getAssign() {
+        return assign;
+    }
 
     public long runningTime() {
         return System.nanoTime() / 1000000L;

@@ -8,15 +8,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TaskPool {
 
-    private static List<TaskWorker> threadPool;
+    private static CopyOnWriteArrayList<TaskWorker> threadPool;
     private static List<TaskWorker> freeWorkers;
     private static Thread workerCThread;
 
     static {
-        threadPool = new ArrayList<>();
+        threadPool = new CopyOnWriteArrayList<>();
         startWorkerController();
         setup();
     }
@@ -31,7 +32,8 @@ public class TaskPool {
                         /* not using 'taskWorker.isBusy()' because we don't need to get ASYNC_WORKER_BUSY
                          * every time */
                         if (workingTime >= maxRunTime) {
-                            taskWorker.transferWork(freeWorker());
+                            TaskWorker freeWorker = freeWorker();
+                            taskWorker.transferWork(freeWorker);
                         }
                     }
                 }
@@ -40,6 +42,7 @@ public class TaskPool {
                 kThread.sleep(checkBusyTime);
             }
         });
+        workerCThread.start();
     }
 
     private static void setup() {
@@ -58,6 +61,8 @@ public class TaskPool {
 
         TaskWorker taskWorker = new TaskWorker();
         threadPool.add(taskWorker);
+        taskWorker.startWorker();
+        System.out.println("Created taskworker");
         return taskWorker;
     }
 

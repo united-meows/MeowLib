@@ -10,12 +10,14 @@ import pisi.unitedmeows.meowlib.thread.kThread;
 public class Start {
 
     public static void main(String[] args) {
-        System.out.println("test 1");
-        kThread.sleep(1000);
-        System.out.println("test 2");
-        MeowLib.settings();
-        async(new Task<Object>() {
+        async(()-> {System.out.println("test1"); kThread.sleep(10000);return null;});
+        async(()-> {System.out.println("test2"); kThread.sleep(4000);return null;});
+        async(()-> {System.out.println("test3"); kThread.sleep(200);return null;});
+        async(()-> {System.out.println("test4");kThread.sleep(500); return null;});
+        async(()-> {System.out.println("test1"); kThread.sleep(10000);return null;});
+        async(()-> {System.out.println("test2"); kThread.sleep(4000);return null;});
+        
 
-        });
     }
+
 }

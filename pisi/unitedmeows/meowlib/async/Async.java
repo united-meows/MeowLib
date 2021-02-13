@@ -4,13 +4,16 @@ import pisi.unitedmeows.meowlib.etc.IAction;
 
 public class Async {
 
-    public static Task<?> async(IAction action) {
-        Task<Object> task = new Task<Object>() {
+    public static Task<?> async(IAsyncAction action) {
+        Task<?> task = new Task<Object>(action, null) {
             @Override
-            public Object run() {
-                return action.run();
+            public Task<?> run() {
+                return super.run();
             }
-        }
+        };
+        TaskPool.freeWorker().queue(task);
+        return null;
     }
+
 
 }
