@@ -61,7 +61,7 @@ public class MeowMath {
         if (x > 2 * y) {
             double x1 = Double.longBitsToDouble(Double.doubleToLongBits(x) & 0xffffffff00000000L);
             double x2 = x - x1;
-            z = Math.sqrt(x1 * x1 + (y * y + x2 * (x + x1)));
+            z = sqrt(x1 * x1 + (y * y + x2 * (x + x1)));
         }
         else {
             double t = 2 * x;
@@ -70,7 +70,7 @@ public class MeowMath {
             double y1 = Double.longBitsToDouble(Double.doubleToLongBits(y) & 0xffffffff00000000L);
             double y2 = y - y1;
             double x_y = x - y;
-            z = Math.sqrt(t1 * y1 + (x_y * x_y + (t1 * y2 + t2 * y)));
+            z = sqrt(t1 * y1 + (x_y * x_y + (t1 * y2 + t2 * y)));
         }
         if (bias == 0) {
             return z;
