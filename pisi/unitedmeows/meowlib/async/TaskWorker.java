@@ -13,18 +13,14 @@ public class TaskWorker extends Thread{
         taskList = tasks;
     }
 
-    @Override
-    public void run() {
-        while (running) {
-
-            if (taskList.isEmpty()) {
-                kThread.sleep(/* mlibsetting.async_wait_delay */);
-                return;
-            }
-
-
-        }
-    }
+   @Override
+   public void run() {
+	  while (running) {
+		 if (taskList.isEmpty()) {
+			kThread.sleep((long) MLibSettings.ASYNC_WAIT_DELAY.getValue());
+		 }
+	  }
+   }
 
     public void setRunning(boolean running) {
         this.running = running;
