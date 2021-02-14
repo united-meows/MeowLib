@@ -11,25 +11,17 @@ import sun.nio.ch.ThreadPool;
 import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
+import pisi.unitedmeows.meowlib.variables.ubyte;
 
 public class Start {
 
     public static void main(String[] args) {
-        async((u) -> {
-            while (true) {
+        ubyte test = new ubyte((byte)10);
+        ubyte test2 = new ubyte((byte)127);
+        test2.minus(test);
+        System.out.println(test2.raw());
 
-                System.out.println("Worker count: " + TaskPool.workerCount());
 
-                kThread.sleep(100);
-            }
-        });
-        while (true) {
-            async((u) -> {
-                System.out.println("test");
-                kThread.sleep(50);
-            });
-            kThread.sleep(10);
-        }
 
     }
 

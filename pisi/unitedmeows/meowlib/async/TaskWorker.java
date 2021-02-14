@@ -28,12 +28,15 @@ public class TaskWorker extends Thread {
                 kThread.sleep((long) MeowLib.settings().get(MLibSettings.ASYNC_WAIT_DELAY).getValue());
                 return;
             }
-            runningTask = taskQueue.poll();
-            runningTask.pre();
-            runningTask.run();
-            runningTask.post();
-            runningTask = null;
-
+            try {
+                runningTask = taskQueue.poll();
+                runningTask.pre();
+                runningTask.run();
+                runningTask.post();
+                runningTask = null;
+            } catch (NoSuchMethodError | NullPointerException ex) {
+                runningTask = null;
+            }
         }
     }
 
