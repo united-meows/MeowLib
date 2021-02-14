@@ -1,18 +1,46 @@
 package pisi.unitedmeows.meowlib.async;
 
-import pisi.unitedmeows.meowlib.etc.IAction;
+import pisi.unitedmeows.meowlib.MeowLib;
+import pisi.unitedmeows.meowlib.etc.MLibSettings;
+import pisi.unitedmeows.meowlib.thread.kThread;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 public class Async {
+    /* replace this to meowmap */
+    private static HashMap<UUID, Task<?>> pointers;
 
-    public static Task<?> async(IAsyncAction action) {
+    static {
+        pointers = new HashMap<>();
+    }
+
+    public static UUID async(IAsyncAction action) {
+        // change this uuid alternative
+        final UUID pointer = UUID.randomUUID();
+        //todo: check for if pointer already exists
+
+
         Task<?> task = new Task<Object>(action, null) {
             @Override
-            public Task<?> run() {
-                return super.run();
+            public void run() {
+               action.start(pointer);
             }
         };
+
+
+        pointers.put(pointer, task);
         TaskPool.freeWorker().queue(task);
-        return null;
+        return pointer;
+    }
+
+    public static Task await(UUID uuid) {
+        Task task = pointers.get(uuid);
+        long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
+        while (task.state() == Task.State.RUNNING) {
+            kThread.sleep(checkTime);
+        }
+        return task;
     }
 
 

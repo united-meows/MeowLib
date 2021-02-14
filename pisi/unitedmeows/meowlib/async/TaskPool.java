@@ -52,17 +52,31 @@ public class TaskPool {
     }
 
     public static TaskWorker freeWorker() {
+
+        // selecting least taskworker that has least queue and not busy
+        // ===========
+        int leastQueue = -1;
+        TaskWorker worker = null;
         for (TaskWorker taskWorker : threadPool) {
             if (taskWorker.isBusy()) {
                 continue;
             }
-            return taskWorker;
-        }
 
+            if (leastQueue == -1 || leastQueue >= taskWorker.queueSize()) {
+                leastQueue = taskWorker.queueSize();
+                worker = taskWorker;
+            }
+        }
+        // if found return
+        if (worker != null) {
+            return worker;
+        }
+        // ============
+        // if all taskworkers are busy
+        // create a new taskworker
         TaskWorker taskWorker = new TaskWorker();
         threadPool.add(taskWorker);
         taskWorker.startWorker();
-        System.out.println("Created taskworker");
         return taskWorker;
     }
 

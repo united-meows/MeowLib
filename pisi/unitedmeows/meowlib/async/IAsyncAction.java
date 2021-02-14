@@ -1,5 +1,8 @@
 package pisi.unitedmeows.meowlib.async;
 
+import java.util.UUID;
+
+@FunctionalInterface
 public interface IAsyncAction {
-    Task<?> start();
+    void start(UUID uuid);
 }

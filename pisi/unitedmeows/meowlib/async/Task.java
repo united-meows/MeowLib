@@ -18,8 +18,8 @@ public abstract class Task<X> {
         startTime = runningTime();
     }
 
-    public Task<?> run() {
-        return action.start();
+    public void run() {
+
     }
 
 
@@ -40,6 +40,9 @@ public abstract class Task<X> {
         return runningTime() - startTime;
     }
 
+    public State state() {
+        return state;
+    }
 
     public Result<X> result() {
         return result;

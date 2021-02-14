@@ -30,12 +30,16 @@ public class TaskWorker extends Thread {
             }
             runningTask = taskQueue.poll();
             runningTask.pre();
-            Task<?> result = runningTask.run();
-            if (runningTask.getAssign() != null) {
-               /* TODO: ^^._.^^ */
-            }
+//            Task<?> result = runningTask.run();
+//            if (runningTask.getAssign() != null) {
+//               /* TODO: ^^._.^^ */
+//            }
             runningTask.post();
         }
+    }
+
+    public int queueSize() {
+        return taskQueue.size();
     }
 
 
@@ -59,6 +63,8 @@ public class TaskWorker extends Thread {
         }
         return false;
     }
+
+
 
     public void queue(@NotNull final Task task) {
         taskQueue.add(task);
