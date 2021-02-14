@@ -25,16 +25,10 @@ public class TaskPool {
     private static void startWorkerController() {
         workerCThread = new Thread(() -> {
             while (true) {
-                long maxRunTime = (long) MeowLib.settings().get(MLibSettings.ASYNC_WORKER_BUSY).getValue();
                 for (TaskWorker taskWorker : threadPool) {
-                    if (taskWorker.isWorking()) {
-                        long workingTime = taskWorker.getRunningTask().timeElapsed();
-                        /* not using 'taskWorker.isBusy()' because we don't need to get ASYNC_WORKER_BUSY
-                         * every time */
-                        if (workingTime >= maxRunTime) {
-                            TaskWorker freeWorker = freeWorker();
-                            taskWorker.transferWork(freeWorker);
-                        }
+                    if (taskWorker.isBusy() && taskWorker.queueSize() != 0) {
+                        TaskWorker freeWorker = freeWorker();
+                        taskWorker.transferWork(freeWorker);
                     }
                 }
 

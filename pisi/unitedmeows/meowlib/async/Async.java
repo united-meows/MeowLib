@@ -15,13 +15,17 @@ public class Async {
         pointers = new HashMap<>();
     }
 
+    public static Task<?> task(UUID uuid) {
+        return pointers.get(uuid);
+    }
+
     public static UUID async(IAsyncAction action) {
         // change this uuid alternative
         final UUID pointer = UUID.randomUUID();
         //todo: check for if pointer already exists
 
 
-        Task<?> task = new Task<Object>(action, null) {
+        Task<?> task = new Task<Object>(action) {
             @Override
             public void run() {
                action.start(pointer);
@@ -34,10 +38,10 @@ public class Async {
         return pointer;
     }
 
-    public static Task await(UUID uuid) {
-        Task task = pointers.get(uuid);
+    public static Task<?> await(UUID uuid) {
+        Task<?> task = pointers.get(uuid);
         long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
-        while (task.state() == Task.State.RUNNING) {
+        while (task.state() == Task.State.RUNNING || task.state() == Task.State.IDLE) {
             kThread.sleep(checkTime);
         }
         return task;

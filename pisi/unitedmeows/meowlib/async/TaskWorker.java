@@ -12,7 +12,7 @@ public class TaskWorker extends Thread {
 
     private Queue<Task<?>> taskQueue;
     private boolean running;
-    private Task runningTask;
+    private Task<?> runningTask;
 
     public TaskWorker(Queue<Task<?>> tasks) {
         taskQueue = tasks;
@@ -30,12 +30,14 @@ public class TaskWorker extends Thread {
             }
             runningTask = taskQueue.poll();
             runningTask.pre();
-//            Task<?> result = runningTask.run();
-//            if (runningTask.getAssign() != null) {
-//               /* TODO: ^^._.^^ */
-//            }
+            runningTask.run();
             runningTask.post();
+
         }
+    }
+
+    public void clear() {
+        taskQueue.clear();
     }
 
     public int queueSize() {

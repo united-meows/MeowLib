@@ -3,14 +3,12 @@ package pisi.unitedmeows.meowlib.async;
 public abstract class Task<X> {
 
     private State state = State.IDLE;
-    protected Result<X> result;
+    protected X result;
     private long startTime;
     private IAsyncAction action;
-    private Object assign;
 
-    public Task(IAsyncAction action, Object assign) {
+    public Task(IAsyncAction action) {
         this.action = action;
-        this.assign = assign;
     }
 
     public void pre() {
@@ -28,9 +26,6 @@ public abstract class Task<X> {
     }
 
 
-    public Object getAssign() {
-        return assign;
-    }
 
     public long runningTime() {
         return System.nanoTime() / 1000000L;
@@ -44,8 +39,12 @@ public abstract class Task<X> {
         return state;
     }
 
-    public Result<X> result() {
+    public X result() {
         return result;
+    }
+
+    public void setResult(Object value) {
+        result = (X) value;
     }
 
     public enum State {
