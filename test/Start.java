@@ -6,24 +6,30 @@ import static pisi.unitedmeows.meowlib.async.Async.*;
 import pisi.unitedmeows.meowlib.async.Task;
 import pisi.unitedmeows.meowlib.async.TaskPool;
 import pisi.unitedmeows.meowlib.thread.kThread;
+import sun.nio.ch.ThreadPool;
 
+import java.io.IOException;
+import java.util.Random;
 import java.util.UUID;
 
 public class Start {
 
     public static void main(String[] args) {
-        String result = (String) await(async((u) -> testAsyncMethod(u))).result();
-        System.out.println(result);
-        await(async((u)->
-        {
-            System.out.println("test2");
-            kThread.sleep(1000);
+        async((u) -> {
+            while (true) {
+
+                System.out.println("Worker count: " + TaskPool.workerCount());
+
+                kThread.sleep(100);
+            }
+        });
+        while (true) {
+            async((u) -> {
+                System.out.println("test");
+                kThread.sleep(50);
+            });
+            kThread.sleep(10);
         }
-        ));
-        async((u)-> {System.out.println("test1");});
-        async((u)-> {System.out.println("test9");});
-        await(async((u)-> { kThread.sleep(2000); System.out.println("test3");}));
-        System.out.println("Test");
 
     }
 

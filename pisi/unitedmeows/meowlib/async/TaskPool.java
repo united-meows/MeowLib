@@ -28,12 +28,33 @@ public class TaskPool {
                 for (TaskWorker taskWorker : threadPool) {
                     if (taskWorker.isBusy() && taskWorker.queueSize() != 0) {
                         TaskWorker freeWorker = freeWorker();
+                        System.out.println("transfering queue to another taskworker");
                         taskWorker.transferWork(freeWorker);
                     }
                 }
 
                 long checkBusyTime = (long) MeowLib.settings().get(MLibSettings.ASYNC_CHECK_BUSY).getValue();
                 kThread.sleep(checkBusyTime);
+                List<TaskWorker> freeWorkers = new ArrayList<>();
+                for (TaskWorker taskWorker : threadPool) {
+                    if (taskWorker.isFree() && taskWorker.queueSize() == 0) {
+                        freeWorkers.add(taskWorker);
+                    }
+                }
+
+                if (freeWorkers.size() == workerCount()) {
+                    freeWorkers.remove(0);
+
+                }
+                if (!freeWorkers.isEmpty()) {
+                    for (TaskWorker freeWorker : freeWorkers) {
+                        if (freeWorker.queueSize() == 0) {
+                            threadPool.remove(freeWorker);
+                            freeWorker.stopWorker();
+                        }
+                    }
+                }
+
             }
         });
         workerCThread.start();
@@ -44,6 +65,7 @@ public class TaskPool {
 
         }
     }
+
 
     public static TaskWorker freeWorker() {
 
@@ -70,9 +92,12 @@ public class TaskPool {
         // create a new taskworker
         TaskWorker taskWorker = new TaskWorker();
         threadPool.add(taskWorker);
+        System.out.println("Creating new taskworker");
         taskWorker.startWorker();
         return taskWorker;
     }
 
-
+    public static int workerCount() {
+        return threadPool.size();
+    }
 }

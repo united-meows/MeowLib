@@ -32,6 +32,7 @@ public class TaskWorker extends Thread {
             runningTask.pre();
             runningTask.run();
             runningTask.post();
+            runningTask = null;
 
         }
     }
@@ -77,7 +78,7 @@ public class TaskWorker extends Thread {
     }
 
     public boolean isFree() {
-        return !isWorking();
+        return !isWorking() && queueSize() == 0;
     }
 
     public void setRunning(boolean running) {
