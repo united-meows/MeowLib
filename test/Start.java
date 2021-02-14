@@ -16,9 +16,11 @@ import pisi.unitedmeows.meowlib.variables.ubyte;
 public class Start {
 
     public static void main(String[] args) {
+
+        // byte can only store up to 127
         ubyte test = new ubyte((byte)10);
         ubyte test2 = new ubyte((byte)127);
-        test2.minus(test);
+        test2.plus(test);
         System.out.println(test2.raw());
 
 
