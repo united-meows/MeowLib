@@ -1,6 +1,7 @@
 package pisi.unitedmeows.meowlib.async;
 
 import pisi.unitedmeows.meowlib.MeowLib;
+import pisi.unitedmeows.meowlib.etc.IAction;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
@@ -17,6 +18,15 @@ public class Async {
 
     public static Task<?> task(UUID uuid) {
         return pointers.get(uuid);
+    }
+
+    /* this code shouldn't exists but looks cool */
+    public static void async_t(IAction action) {
+        new Thread(()-> {
+            try {
+                action.run();
+            } catch (Exception exception) {}
+        }).start();
     }
 
     public static UUID async(IAsyncAction action) {
