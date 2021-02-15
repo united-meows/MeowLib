@@ -10,54 +10,41 @@ import java.util.Queue;
 
 public class TaskWorker extends Thread {
 
-    private Queue<Task<?>> taskQueue;
     private boolean running;
     private Task<?> runningTask;
+    private ITaskPool pool;
+    private long lastWork;
 
-    public TaskWorker(Queue<Task<?>> tasks) {
-        taskQueue = tasks;
-    }
-    public TaskWorker() {
-        taskQueue = new ArrayDeque<Task<?>>();
+    public TaskWorker(ITaskPool owner) {
+        pool = owner;
+        lastWork = curTime();
     }
 
     @Override
     public void run() {
         while (running) {
-            if (taskQueue.isEmpty()) {
-                kThread.sleep((long) MeowLib.settings().get(MLibSettings.ASYNC_WAIT_DELAY).getValue());
-                return;
-            }
             try {
-                runningTask = taskQueue.poll();
+                runningTask = pool.poll();
                 runningTask.pre();
                 runningTask.run();
                 runningTask.post();
                 runningTask = null;
+                lastWork =  curTime();
             } catch (NoSuchMethodError | NullPointerException ex) {
                 runningTask = null;
             }
         }
     }
 
-    public void clear() {
-        taskQueue.clear();
+
+    private long curTime() {
+        return System.nanoTime() / 1000000L;
     }
 
-    public int queueSize() {
-        return taskQueue.size();
+    public long lastWorkTimeElapsed() {
+        return curTime() - lastWork;
     }
 
-
-    public void transferWork(@NotNull TaskWorker otherWorker) {
-        if (taskQueue.isEmpty()) {
-            return;
-        }
-
-        while (!taskQueue.isEmpty()) {
-            otherWorker.queue(taskQueue.poll());
-        }
-    }
 
     public Task getRunningTask() {
         return runningTask;
@@ -72,16 +59,12 @@ public class TaskWorker extends Thread {
 
 
 
-    public void queue(@NotNull final Task task) {
-        taskQueue.add(task);
-    }
-
     public boolean isWorking() {
         return getRunningTask() != null;
     }
 
     public boolean isFree() {
-        return !isWorking() && queueSize() == 0;
+        return !isWorking();
     }
 
     public void setRunning(boolean running) {

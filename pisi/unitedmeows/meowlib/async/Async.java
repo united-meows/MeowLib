@@ -34,7 +34,7 @@ public class Async {
 
 
         pointers.put(pointer, task);
-        TaskPool.freeWorker().queue(task);
+        MeowLib.getTaskPool().queue(task);
         return pointer;
     }
 
