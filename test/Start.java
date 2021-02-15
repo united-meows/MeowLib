@@ -14,6 +14,12 @@ import static pisi.unitedmeows.meowlib.MeowLib.*;
 public class Start {
 
     public static void main(String[] args) {
+        String result = (String) await(async((u)-> asyncTest(u))).result();
+        System.out.println(result);
+    }
 
+    public static void asyncTest(UUID uuid) {
+        Task<?> task = task(uuid);
+        task.setResult("I HATE ASYNC");
     }
 }
