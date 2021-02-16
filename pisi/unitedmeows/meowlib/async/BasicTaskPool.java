@@ -90,7 +90,11 @@ public class BasicTaskPool implements ITaskPool {
 
     @Override
     public void close() {
-
+        taskQueue.clear();
+        for (TaskWorker taskWorker : taskWorkers) {
+            taskWorker.stopWorker();
+        }
+        taskWorkers.clear();
     }
 
 }

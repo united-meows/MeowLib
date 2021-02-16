@@ -82,7 +82,7 @@ public class kFile {
         char[] buffer = new char[N];
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(f)); 
+            BufferedReader br = new BufferedReader(new FileReader(f));
 
             while(true) {
                 read = br.read(buffer, 0, N);
