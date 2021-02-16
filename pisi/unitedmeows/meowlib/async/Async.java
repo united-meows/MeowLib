@@ -20,25 +20,6 @@ public class Async {
         return pointers.get(uuid);
     }
 
-    /* this code shouldn't exists but looks cool */
-    public static UUID async_t(IAsyncAction action) {
-        final UUID pointer = UUID.randomUUID();
-        Task<?> task = new Task<Object>(action) {
-            @Override
-            public void run() {
-                action.start(pointer);
-            }
-        };
-
-        pointers.put(pointer, task);
-        new Thread(()-> {
-            task.pre();
-            task.run();
-            task.post();
-        }).start();
-
-        return pointer;
-    }
 
     public static UUID async_f(IAsyncAction action) {
         // change this uuid alternative
@@ -73,6 +54,8 @@ public class Async {
         return pointer;
     }
 
+
+
     public static Task<?> await(UUID uuid) {
         Task<?> task = pointers.get(uuid);
         long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
@@ -80,6 +63,27 @@ public class Async {
             kThread.sleep(checkTime);
         }
         return task;
+    }
+
+
+    /* this code shouldn't exists but looks cool */
+    public static UUID async_t(IAsyncAction action) {
+        final UUID pointer = UUID.randomUUID();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                action.start(pointer);
+            }
+        };
+
+        pointers.put(pointer, task);
+        new Thread(()-> {
+            task.pre();
+            task.run();
+            task.post();
+        }).start();
+
+        return pointer;
     }
 
     private static UUID newPointer() {
