@@ -21,18 +21,44 @@ public class Async {
     }
 
     /* this code shouldn't exists but looks cool */
-    public static void async_t(IAction action) {
+    public static UUID async_t(IAsyncAction action) {
+        final UUID pointer = UUID.randomUUID();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                action.start(pointer);
+            }
+        };
+
+        pointers.put(pointer, task);
         new Thread(()-> {
-            try {
-                action.run();
-            } catch (Exception exception) {}
+            task.pre();
+            task.run();
+            task.post();
         }).start();
+
+        return pointer;
+    }
+
+    public static UUID async_f(IAsyncAction action) {
+        // change this uuid alternative
+        final UUID pointer = newPointer();
+
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                action.start(pointer);
+            }
+        };
+
+        pointers.put(pointer, task);
+        MeowLib.getTaskPool().queue_f(task);
+        return pointer;
     }
 
     public static UUID async(IAsyncAction action) {
         // change this uuid alternative
-        final UUID pointer = UUID.randomUUID();
-        //todo: check for if pointer already exists
+        final UUID pointer = newPointer();
 
 
         Task<?> task = new Task<Object>(action) {
@@ -54,6 +80,14 @@ public class Async {
             kThread.sleep(checkTime);
         }
         return task;
+    }
+
+    private static UUID newPointer() {
+        UUID pointer;
+        do {
+            pointer = UUID.randomUUID();
+        } while (pointers.containsKey(pointer));
+        return pointer;
     }
 
 

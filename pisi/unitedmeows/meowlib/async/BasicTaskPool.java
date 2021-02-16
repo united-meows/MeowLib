@@ -54,7 +54,7 @@ public class BasicTaskPool implements ITaskPool {
                 taskWorkers.add(freeWorker);
                 freeWorker.startWorker();
             } else if (taskWorkers.size() > 3){
-                for (TaskWorker nWorking : nWorkings) {
+                for (TaskWorker nWorking :      ) {
                     taskWorkers.remove(nWorking);
                 }
             }
@@ -66,6 +66,11 @@ public class BasicTaskPool implements ITaskPool {
     @Override
     public void queue(Task<?> task) {
         taskQueue.add(task);
+    }
+
+    @Override
+    public void queue_f(Task<?> task) {
+        taskQueue.addFirst(task);
     }
 
     @Override

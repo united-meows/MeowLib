@@ -14,16 +14,17 @@ import static pisi.unitedmeows.meowlib.MeowLib.*;
 public class Start {
 
     public static void main(String[] args) {
-        long time = await(async((u) -> asyncTest(u))).timeSpent();
-        System.out.println(time);
+        String result = (String) await(async((u) -> asyncTest(u))).result();
+        System.out.println(result);
+        async((u)-> System.out.println("hello world"));
+        async((u)-> System.out.println("hello world"));
+        async((u)-> {System.out.println("hello world"); kThread.sleep(3000);});
+        async_f((u)-> System.out.println("hello world FAST #1"));
         async((u)-> System.out.println("hello world"));
         async((u)-> System.out.println("hello world"));
         async((u)-> System.out.println("hello world"));
         async((u)-> System.out.println("hello world"));
-        async((u)-> System.out.println("hello world"));
-        async((u)-> System.out.println("hello world"));
-        async((u)-> System.out.println("hello world"));
-        async((u)-> System.out.println("hello world"));
+        async_f((u)-> System.out.println("hello world FAST #2"));
         async((u)-> System.out.println("hello world"));
 
 
