@@ -82,8 +82,7 @@ public class kFile {
         char[] buffer = new char[N];
 
         try {
-            FileReader fr = new FileReader(f);
-            BufferedReader br = new BufferedReader(fr);
+            BufferedReader br = new BufferedReader(new FileReader(f)); 
 
             while(true) {
                 read = br.read(buffer, 0, N);
@@ -93,6 +92,7 @@ public class kFile {
                     break;
                 }
             }
+            br.close();
         } catch(Exception ex) {
             ex.printStackTrace();
         }

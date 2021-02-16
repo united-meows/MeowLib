@@ -5,6 +5,7 @@ public abstract class Task<X> {
     private State state = State.IDLE;
     protected X result;
     private long startTime;
+    private long timeSpent;
     private IAsyncAction action;
 
     public Task(IAsyncAction action) {
@@ -16,14 +17,12 @@ public abstract class Task<X> {
         startTime = runningTime();
     }
 
-    public void run() {
-
-    }
+    public abstract void run();
 
 
     public void post() {
         state = State.FINISHED;
-
+        timeSpent = runningTime() - startTime;
     }
 
 
@@ -34,6 +33,10 @@ public abstract class Task<X> {
 
     public long timeElapsed() {
         return runningTime() - startTime;
+    }
+
+    public long timeSpent() {
+        return timeSpent;
     }
 
     public State state() {

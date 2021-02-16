@@ -1,4 +1,4 @@
-package pisi.unitedmeows.meowlib.math;
+ package pisi.unitedmeows.meowlib.math;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

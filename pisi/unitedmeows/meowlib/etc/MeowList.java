@@ -7,6 +7,7 @@ public class MeowList<X> {
     public MeowList() {
         currentTail = new Tail<>();
     }
+
     public MeowList(int tailLength) {
         currentTail = new Tail<>(tailLength);
     }
