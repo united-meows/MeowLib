@@ -4,14 +4,9 @@ import static pisi.unitedmeows.meowlib.async.Async.*;
 
 import java.util.UUID;
 
-import pisi.unitedmeows.meowlib.MeowLib;
 import pisi.unitedmeows.meowlib.async.Task;
-import pisi.unitedmeows.meowlib.etc.FlexibleArray;
-import pisi.unitedmeows.meowlib.etc.MeowList;
-import pisi.unitedmeows.meowlib.filesystem.kFile;
 import pisi.unitedmeows.meowlib.thread.kThread;
-import pisi.unitedmeows.meowlib.variables.ubyte;
-import static pisi.unitedmeows.meowlib.MeowLib.*;
+
 public class Start {
 
 
@@ -29,26 +24,6 @@ public class Start {
         async_f((u)-> System.out.println("hello world FAST #2"));
         async((u)-> System.out.println("hello world"));
 
-
-        FlexibleArray<String> flexibleArray = new FlexibleArray<String>(3);
-        flexibleArray.add("anan");
-        flexibleArray.add("baban");
-        flexibleArray.add("eben");
-        flexibleArray.add("haha");
-        for (String element : flexibleArray.array()) {
-            System.out.println(element);
-        }
-        flexibleArray.add("eben");
-        flexibleArray.add("zaaa");
-        flexibleArray.add("xd");
-
-
-        System.out.println("Second Test");
-        flexibleArray.remove(3);
-
-        for (String element : flexibleArray.array()) {
-            System.out.println(element);
-        }
 
     }
 
