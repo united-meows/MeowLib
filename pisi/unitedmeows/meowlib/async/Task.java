@@ -47,6 +47,10 @@ public abstract class Task<X> {
         return result;
     }
 
+    public X await() {
+        return (X) Async.await(this).result();
+    }
+
     public void setResult(Object value) {
         result = (X) value;
     }

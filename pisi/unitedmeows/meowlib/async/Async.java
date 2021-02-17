@@ -20,8 +20,12 @@ public class Async {
         return pointers.get(uuid);
     }
 
+    public static void taskResult(UUID uuid, Object result) {
+        task(uuid).setResult(result);
+    }
 
-    public static UUID async_f(IAsyncAction action) {
+
+    public static Task<?> async_f(IAsyncAction action) {
         // change this uuid alternative
         final UUID pointer = newPointer();
 
@@ -34,10 +38,10 @@ public class Async {
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue_f(task);
-        return pointer;
+        return task;
     }
 
-    public static UUID async(IAsyncAction action) {
+    public static Task<?> async(IAsyncAction action) {
         // change this uuid alternative
         final UUID pointer = newPointer();
 
@@ -51,13 +55,16 @@ public class Async {
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue(task);
-        return pointer;
+        return task;
     }
 
 
 
     public static Task<?> await(UUID uuid) {
-        Task<?> task = pointers.get(uuid);
+        return await(pointers.get(uuid));
+    }
+
+    public static Task<?> await(Task task) {
         long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
         while (task.state() == Task.State.RUNNING || task.state() == Task.State.IDLE) {
             kThread.sleep(checkTime);

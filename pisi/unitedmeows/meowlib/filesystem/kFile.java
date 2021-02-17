@@ -114,7 +114,7 @@ public class kFile {
 
     public static String extension(File file) {
         String extension = "";
-
+        
         try {
             if (file != null && file.isFile()) {
                 String name = file.getName();

@@ -14,13 +14,13 @@ import java.util.concurrent.*;
 public class BasicTaskPool implements ITaskPool {
 
     private List<TaskWorker> taskWorkers;
-    private ArrayDeque<Task<?>> taskQueue;
+    private LinkedBlockingDeque<Task<?>> taskQueue;
     private Thread workerCThread;
 
     @Override
     public void setup() {
         taskWorkers = new ArrayList<>();
-        taskQueue = new ArrayDeque<Task<?>>();
+        taskQueue = new LinkedBlockingDeque<Task<?>>();
         workerCThread = new Thread(this::workerC);
         workerCThread.start();
 
@@ -54,7 +54,7 @@ public class BasicTaskPool implements ITaskPool {
                 taskWorkers.add(freeWorker);
                 freeWorker.startWorker();
             } else if (taskWorkers.size() > 3){
-                for (TaskWorker nWorking :      ) {
+                for (TaskWorker nWorking : nWorkings) {
                     taskWorkers.remove(nWorking);
                 }
             }
