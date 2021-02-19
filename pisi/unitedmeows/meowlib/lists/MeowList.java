@@ -1,4 +1,6 @@
-package pisi.unitedmeows.meowlib.etc;
+package pisi.unitedmeows.meowlib.lists;
+
+import pisi.unitedmeows.meowlib.etc.Tail;
 
 public class MeowList<X> {
 

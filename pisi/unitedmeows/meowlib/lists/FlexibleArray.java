@@ -1,4 +1,4 @@
-package pisi.unitedmeows.meowlib.etc;
+package pisi.unitedmeows.meowlib.lists;
 
 
 import java.util.Arrays;
