@@ -2,6 +2,7 @@ package pisi.unitedmeows.meowlib.lists;
 
 import pisi.unitedmeows.meowlib.etc.Tail;
 
+@Deprecated
 public class MeowList<X> {
 
     private Tail<X> currentTail;

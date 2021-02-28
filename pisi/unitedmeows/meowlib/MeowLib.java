@@ -6,6 +6,7 @@ import pisi.unitedmeows.meowlib.etc.IAction;
 import pisi.unitedmeows.meowlib.etc.MLibSetting;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.variables.ubyte;
+import pisi.unitedmeows.meowlib.variables.uint;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -37,6 +38,18 @@ public class MeowLib {
 
     public static ubyte ubyte(byte value) {
         return new ubyte(value);
+    }
+
+    public static ubyte ubyte(int value) {
+        return new ubyte(ubyte.convert(value));
+    }
+
+    public static uint uint(int value) {
+        return new uint(value);
+    }
+
+    public static uint uint(long value) {
+        return new uint(uint.convert(value));
     }
 
     public static void useTaskPool(ITaskPool newPool) {

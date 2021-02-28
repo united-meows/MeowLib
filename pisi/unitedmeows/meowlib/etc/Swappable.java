@@ -7,6 +7,10 @@ public class Swappable<X> {
 
     public Swappable(X first, X second) {
         this();
+        set(first, second);
+    }
+
+    public void set(X first, X second) {
         this.first = first;
         this.second = second;
     }

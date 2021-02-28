@@ -1,6 +1,6 @@
 package pisi.unitedmeows.meowlib.variables;
 
-public class ubyte extends Number implements Comparable<ubyte> {
+public class ubyte extends Number implements Comparable<ubyte>, INumberOperations<ubyte> {
 
     // didn't expect that one did you?
     private byte value;
@@ -12,6 +12,7 @@ public class ubyte extends Number implements Comparable<ubyte> {
         value = val;
     }
 
+    @Override
     public void plus(ubyte value) {
         int current = intValue();
         int addValue = value.intValue();
@@ -27,6 +28,7 @@ public class ubyte extends Number implements Comparable<ubyte> {
         }
     }
 
+    @Override
     public void minus(ubyte value) {
         int current = intValue();
         int removeValue = value.intValue();
@@ -90,5 +92,51 @@ public class ubyte extends Number implements Comparable<ubyte> {
     @Override
     public double doubleValue() {
         return intValue();
+    }
+
+    @Override
+    public boolean bigger(ubyte otherVal) {
+        if (raw() > 0 && otherVal.raw() > 0) {
+            return raw() > otherVal.raw();
+        }
+
+        if (raw() < 0 && otherVal.raw() < 0) {
+            return raw() < otherVal.raw();
+        }
+
+        if (otherVal.raw() < 0 && raw() > 0) {
+            return false;
+        }
+
+        if (raw() < 0 && otherVal.raw() > 0) {
+            return true;
+        }
+
+        return intValue() > otherVal.intValue();
+    }
+
+    @Override
+    public boolean smaller(ubyte otherVal) {
+        if (raw() > 0 && otherVal.raw() > 0) {
+            return raw() < otherVal.raw();
+        }
+
+        if (raw() < 0 && otherVal.raw() < 0) {
+            return raw() > otherVal.raw();
+        }
+
+        if (otherVal.raw() < 0 && raw() > 0) {
+            return true;
+        }
+
+        if (raw() < 0 && otherVal.raw() > 0) {
+            return false;
+        }
+        return intValue() < otherVal.intValue();
+    }
+
+    @Override
+    public boolean same(ubyte otherVal) {
+        return raw() == otherVal.raw();
     }
 }
