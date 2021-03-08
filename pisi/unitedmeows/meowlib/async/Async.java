@@ -1,6 +1,7 @@
 package pisi.unitedmeows.meowlib.async;
 
 import pisi.unitedmeows.meowlib.MeowLib;
+import pisi.unitedmeows.meowlib.etc.CoID;
 import pisi.unitedmeows.meowlib.etc.IAction;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.thread.kThread;
@@ -9,25 +10,26 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Async {
-    /* replace this to meowmap */
-    private static HashMap<UUID, Task<?>> pointers;
+
+    /*TODO: Create ForgettableHashmap and replace this */
+    private static HashMap<CoID, Task<?>> pointers;
 
     static {
         pointers = new HashMap<>();
     }
 
-    public static Task<?> task(UUID uuid) {
-        return pointers.get(uuid);
+    public static Task<?> task(CoID id) {
+        return pointers.get(id);
     }
 
-    public static void taskResult(UUID uuid, Object result) {
-        task(uuid).setResult(result);
+    public static void _return(CoID uuid, Object result) {
+        task(uuid)._return(result);
     }
 
 
-    public static Task<?> async_f(IAsyncAction action) {
+    public static <X> Future<X> async_f(IAsyncAction action) {
         // change this uuid alternative
-        final UUID pointer = newPointer();
+        final CoID pointer = newPointer();
 
         Task<?> task = new Task<Object>(action) {
             @Override
@@ -38,12 +40,12 @@ public class Async {
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue_f(task);
-        return task;
+        return new Future<>(pointer);
     }
 
-    public static Task<?> async(IAsyncAction action) {
+    public static <X> Future<X> async(IAsyncAction action) {
         // change this uuid alternative
-        final UUID pointer = newPointer();
+        final CoID pointer = newPointer();
 
 
         Task<?> task = new Task<Object>(action) {
@@ -55,16 +57,16 @@ public class Async {
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue(task);
-        return task;
+        return new Future<>(pointer);
     }
 
 
 
-    public static Task<?> await(UUID uuid) {
-        return await(pointers.get(uuid));
+    public static <X> X await(Future<?> future) {
+        return (X) await(pointers.get(future.pointer())).result();
     }
 
-    public static Task<?> await(Task task) {
+    public static Task<?> await(Task<?> task) {
         long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
         while (task.state() == Task.State.RUNNING || task.state() == Task.State.IDLE) {
             kThread.sleep(checkTime);
@@ -74,8 +76,8 @@ public class Async {
 
 
     /* this code shouldn't exists but looks cool */
-    public static UUID async_t(IAsyncAction action) {
-        final UUID pointer = UUID.randomUUID();
+    public static <X> Future<X> async_t(IAsyncAction action) {
+        final CoID pointer = newPointer();
         Task<?> task = new Task<Object>(action) {
             @Override
             public void run() {
@@ -90,13 +92,13 @@ public class Async {
             task.post();
         }).start();
 
-        return pointer;
+        return new Future<X>(pointer);
     }
 
-    private static UUID newPointer() {
-        UUID pointer;
+    private static CoID newPointer() {
+        CoID pointer;
         do {
-            pointer = UUID.randomUUID();
+            pointer = CoID.generate();
         } while (pointers.containsKey(pointer));
         return pointer;
     }

@@ -51,7 +51,7 @@ public abstract class Task<X> {
         return (X) Async.await(this).result();
     }
 
-    public void setResult(Object value) {
+    public void _return(Object value) {
         result = (X) value;
     }
 

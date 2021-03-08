@@ -1,8 +1,10 @@
 package pisi.unitedmeows.meowlib.async;
 
+import pisi.unitedmeows.meowlib.etc.CoID;
+
 import java.util.UUID;
 
 @FunctionalInterface
 public interface IAsyncAction {
-    void start(UUID uuid);
+    void start(CoID uuid);
 }

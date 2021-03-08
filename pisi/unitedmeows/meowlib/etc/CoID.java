@@ -1,17 +1,19 @@
 package pisi.unitedmeows.meowlib.etc;
 
 import java.util.Random;
+import java.util.regex.Pattern;
 
 /** Complex IDentity */
 public class CoID implements Comparable<CoID> {
 
-    //SS-UDUD-LLD-SULUUULL-DD
+    //SS$UDUD-LLD-SULUUULL-DD
     public static final String ALL_UPPERCASE = "ABCDEFGHIJKLMNOPRSTUVYZXQ";
     public static final String DIGITS = "0123456789";
     public static final String ALL_LOWERCASE = "abcdefghijklmnoprstuvyzxq";
     public static final String SPECIAL_CHARS = "COMPLEX2173";
+    private static final Pattern coidPatern = Pattern.compile("[COMPLEX2173]{2}\\$[A-Z][0-9][A-Z][0-9]\\-[a-z]{2}[0-9]\\-[COMPLEX2173][A-Z][a-z][A-Z]{3}[a-z]{2}\\-[0-9]{2}");
     private static final Random random;
-
+    private static final int COID_LENGTH = 23;
 
     static {
         random = new Random();
@@ -29,7 +31,7 @@ public class CoID implements Comparable<CoID> {
     }
 
     public static CoID generate() {
-        //SS-UDUD-LLD-SULUUULL-DD
+        //SS$UDUD-LLD-SULUUULL-DD
         StringBuilder builder = new StringBuilder();
         // SS
         builder.append(nextSpecial());
@@ -86,11 +88,39 @@ public class CoID implements Comparable<CoID> {
     //TODO: Check for pattern
     @Deprecated
     public static boolean isLegal(String coid) {
-        return true;
+        if (coid.length() != 23) {
+            return false;
+        }
+        return coidPatern.matcher(coid).matches();
     }
+
+    public static boolean isLegal(CoID coID) {
+        return isLegal(coID.toString());
+    }
+
+
 
     @Override
     public int compareTo(CoID o) {
         return toString().equals(o.toString()) ? 1 : 0;
+    }
+
+    public boolean same(CoID o2) {
+        return toString().equals(o2.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CoID coID = (CoID) o;
+
+        return value != null ? value.equals(coID.value) : coID.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
     }
 }
