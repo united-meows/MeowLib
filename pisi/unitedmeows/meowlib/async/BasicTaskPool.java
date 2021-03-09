@@ -5,14 +5,13 @@ import pisi.unitedmeows.meowlib.MeowLib;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class BasicTaskPool implements ITaskPool {
 
+
+    private HashMap<Task<?>, Long> waitQueue;
     private List<TaskWorker> taskWorkers;
     private LinkedBlockingDeque<Task<?>> taskQueue;
     private Thread workerCThread;
@@ -21,10 +20,11 @@ public class BasicTaskPool implements ITaskPool {
     public void setup() {
         taskWorkers = new ArrayList<>();
         taskQueue = new LinkedBlockingDeque<Task<?>>();
+        waitQueue = new HashMap<>();
         workerCThread = new Thread(this::workerC);
         workerCThread.start();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 5; i++) {
             TaskWorker taskWorker = new TaskWorker(this);
             taskWorkers.add(taskWorker);
             taskWorker.startWorker();
@@ -59,6 +59,19 @@ public class BasicTaskPool implements ITaskPool {
                 }
             }
 
+            final long currentTime = System.currentTimeMillis();
+            List<Task<?>> addQueue = new ArrayList<>();
+            for (Map.Entry<Task<?>, Long> waitQEntry : waitQueue.entrySet()) {
+                if (currentTime >= waitQEntry.getValue()) {
+                    addQueue.add(waitQEntry.getKey());
+                    queue(waitQEntry.getKey());
+                }
+            }
+
+            for (Task<?> task : addQueue) {
+                waitQueue.remove(task);
+            }
+
             kThread.sleep((long) MeowLib.settings().get(MLibSettings.ASYNC_CHECK_BUSY).getValue());
         }
     }
@@ -71,6 +84,11 @@ public class BasicTaskPool implements ITaskPool {
     @Override
     public void queue_f(Task<?> task) {
         taskQueue.addFirst(task);
+    }
+
+    @Override
+    public void queue_w(Task<?> task, long after) {
+        waitQueue.put(task, System.currentTimeMillis() + after);
     }
 
     @Override

@@ -30,35 +30,91 @@ public class Async {
     public static <X> Future<X> async_f(IAsyncAction action) {
         // change this uuid alternative
         final CoID pointer = newPointer();
-
+        Future<X> future = new Future<>(pointer);
         Task<?> task = new Task<Object>(action) {
             @Override
             public void run() {
                 action.start(pointer);
+                future.post();
             }
         };
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue_f(task);
-        return new Future<>(pointer);
+        return future;
     }
 
     public static <X> Future<X> async(IAsyncAction action) {
         // change this uuid alternative
         final CoID pointer = newPointer();
 
-
+        Future<X> future = new Future<>(pointer);
         Task<?> task = new Task<Object>(action) {
             @Override
             public void run() {
                action.start(pointer);
+               future.post();
             }
         };
 
         pointers.put(pointer, task);
         MeowLib.getTaskPool().queue(task);
-        return new Future<>(pointer);
+        return future;
     }
+
+
+    public static <X> Future<X> async_w(IAsyncAction action, final long after) {
+        // change this uuid alternative
+        final CoID pointer = newPointer();
+
+        Future<X> future = new Future<>(pointer);
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                action.start(pointer);
+                future.post();
+            }
+        };
+
+        pointers.put(pointer, task);
+        MeowLib.getTaskPool().queue_w(task, after);
+        return future;
+    }
+
+    /* async_loop but waits before first call */
+    public static Promise async_wloop(IAsyncAction action, final long repeatDelay) {
+        final Promise promise = new Promise();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                if (promise.isValid()) {
+                    action.start(null);
+                    MeowLib.getTaskPool().queue_w(this, repeatDelay);
+                }
+            }
+        };
+
+        MeowLib.getTaskPool().queue_w(task, repeatDelay);
+        return promise;
+    }
+
+    public static Promise async_loop(IAsyncAction action, final long repeatDelay) {
+        final Promise promise = new Promise();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                if (promise.isValid()) {
+                    action.start(null);
+                    MeowLib.getTaskPool().queue_w(this, repeatDelay);
+                }
+            }
+        };
+
+        MeowLib.getTaskPool().queue(task);
+        return promise;
+    }
+
+
 
 
 
@@ -84,15 +140,16 @@ public class Async {
                 action.start(pointer);
             }
         };
-
+        Future<X> future = new Future<>(pointer);
         pointers.put(pointer, task);
         new Thread(()-> {
             task.pre();
             task.run();
             task.post();
+            future.post();
         }).start();
 
-        return new Future<X>(pointer);
+        return future;
     }
 
     private static CoID newPointer() {
@@ -101,6 +158,14 @@ public class Async {
             pointer = CoID.generate();
         } while (pointers.containsKey(pointer));
         return pointer;
+    }
+
+    public static void removePointer(CoID coid) {
+        pointers.remove(coid);
+    }
+
+    public static int pointerCount() {
+        return pointers.size();
     }
 
 

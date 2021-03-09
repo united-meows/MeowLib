@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import pisi.unitedmeows.meowlib.async.Future;
+import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.async.Task;
 import pisi.unitedmeows.meowlib.etc.CoID;
 import pisi.unitedmeows.meowlib.lists.MeowList;
@@ -18,28 +19,24 @@ import pisi.unitedmeows.meowlib.variables.uint;
 
 public class Start {
 
+    private static Future<?> future;
 
     public static void main(String[] args) {
 
-        // usage 1 (not cool)
-       String usage1_0 = async((u)->asyncTest(u)).await();
 
-       // usage 2
-       String usage2_0 = await(async((u)->asyncTest(u)));
-       String usage2_1 = await(async(Start::asyncTest));
+        async((u)-> System.out.println("Usage 1"));
+        async((u)-> System.out.println("Usage 2")).after((u)-> System.out.println("test"));
 
+        async_w((u)-> System.out.println("Usage 3 (this will run after 5000ms)"), 5000);
 
+        /* defining a variable is not required if you'll not start/stop the loop */
+        final Promise promise = async_loop((u)-> System.out.println("Hello World"), 500);
 
-       Future<String> result = async(Start::asyncTest);
-       while (result.task().state() != Task.State.FINISHED) {
-           System.out.println("TEST: "+ result.task().timeElapsed());
-           kThread.sleep(10);
-       }
-
-       System.out.println(usage1_0);
-       System.out.println(usage2_0);
-       System.out.println(usage2_1);
+        kThread.sleep(3000);
+        promise.stop();
+        kThread.sleep(1000);
     }
+
 
     public static void asyncTest(CoID id) {
         Task<?> task = task(id);

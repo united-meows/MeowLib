@@ -6,7 +6,7 @@ public enum MLibSettings {
     ASYNC_WORKER_BUSY("ASYNC_WORKER_BUSY", Long.class, 500L),
     ASYNC_AWAIT_CHECK_DELAY("ASYNC_AWAIT_CHECK_DELAY", Long.class, 50L),
     ASYNC_NWORKING_TIME("ASYNC_NWORKING_TIME", Long.class, 8000L),
-    ASYNC_CHECK_BUSY("ASYNC_CHECK_BUSY", Long.class, 300L);
+    ASYNC_CHECK_BUSY("ASYNC_CHECK_BUSY", Long.class, 100L);
 
     private String name;
     private Class<?> type;
