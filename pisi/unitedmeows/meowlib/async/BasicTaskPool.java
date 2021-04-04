@@ -53,7 +53,7 @@ public class BasicTaskPool implements ITaskPool {
                 TaskWorker freeWorker = new TaskWorker(this);
                 taskWorkers.add(freeWorker);
                 freeWorker.startWorker();
-            } else if (taskWorkers.size() > 3){
+            } else if (taskWorkers.size() > 6){
                 for (TaskWorker nWorking : nWorkings) {
                     taskWorkers.remove(nWorking);
                 }

@@ -30,11 +30,7 @@ public class Start {
         async_w((u)-> System.out.println("Usage 3 (this will run after 5000ms)"), 5000);
 
         /* defining a variable is not required if you'll not start/stop the loop */
-        final Promise promise = async_loop((u)-> System.out.println("Hello World"), 500);
-
-        kThread.sleep(3000);
-        promise.stop();
-        kThread.sleep(1000);
+        final Promise promise = async_loop((u)-> System.out.println("Hello World"), 500, 3000);
     }
 
 

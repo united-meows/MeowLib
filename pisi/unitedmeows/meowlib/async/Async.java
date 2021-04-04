@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Async {
-
-    /*TODO: Create ForgettableHashmap and replace this */
+    
     private static HashMap<CoID, Task<?>> pointers;
 
     static {
@@ -64,7 +63,7 @@ public class Async {
 
 
     public static <X> Future<X> async_w(IAsyncAction action, final long after) {
-        // change this uuid alternative
+
         final CoID pointer = newPointer();
 
         Future<X> future = new Future<>(pointer);
@@ -93,12 +92,60 @@ public class Async {
                 }
             }
         };
+        promise.start();
 
         MeowLib.getTaskPool().queue_w(task, repeatDelay);
         return promise;
     }
 
+    /* same as wloop but starts manually */
+    public static Promise async_wloop_w(IAsyncAction action, final long repeatDelay) {
+        final Promise promise = new Promise();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                if (promise.isValid()) {
+                    action.start(null);
+                    MeowLib.getTaskPool().queue_w(this, repeatDelay);
+                }
+            }
+        };
+
+        MeowLib.getTaskPool().queue_w(task, repeatDelay);
+        return promise;
+    }
+
+    public static Promise async_loop(IAsyncAction action, final long repeatDelay, final long lifeTime) {
+        final Promise promise = async_loop(action, repeatDelay);
+        async_w((u) -> promise.stop(), lifeTime);
+        return promise;
+    }
+
+    public static Promise async_loop_w(IAsyncAction action, final long repeatDelay, final long lifeTime) {
+        final Promise promise = async_loop_w(action, repeatDelay);
+        async_w((u) -> promise.stop(), lifeTime + repeatDelay);
+        return promise;
+    }
+
     public static Promise async_loop(IAsyncAction action, final long repeatDelay) {
+        final Promise promise = new Promise();
+        Task<?> task = new Task<Object>(action) {
+            @Override
+            public void run() {
+                if (promise.isValid()) {
+                    action.start(null);
+                    MeowLib.getTaskPool().queue_w(this, repeatDelay);
+                }
+            }
+        };
+        promise.start();
+
+        MeowLib.getTaskPool().queue(task);
+        return promise;
+    }
+
+    /* same as async_loop but starts manually */
+    public static Promise async_loop_w(IAsyncAction action, final long repeatDelay) {
         final Promise promise = new Promise();
         Task<?> task = new Task<Object>(action) {
             @Override
