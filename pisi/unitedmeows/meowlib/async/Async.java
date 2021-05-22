@@ -1,13 +1,13 @@
 package pisi.unitedmeows.meowlib.async;
 
 import pisi.unitedmeows.meowlib.MeowLib;
+import pisi.unitedmeows.meowlib.clazz.prop;
 import pisi.unitedmeows.meowlib.etc.CoID;
-import pisi.unitedmeows.meowlib.etc.IAction;
+import pisi.unitedmeows.meowlib.async.states.IState;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 public class Async {
     
@@ -25,6 +25,27 @@ public class Async {
         task(uuid)._return(result);
     }
 
+    public static Promise async_when(IState when, IAsyncAction asyncAction, long checkInterval) {
+        prop<Promise> promise = new prop<Promise>();
+        promise.set(async_wloop(u -> {
+            if (when.state()) {
+                async_f(asyncAction);
+                promise.get().stop();
+            }
+        }, checkInterval));
+        return promise.get();
+    }
+
+    public static Promise async_while(IState state, IAsyncAction asyncAction, long loopInterval) {
+        prop<Promise> promise = new prop<Promise>();
+        promise.set(async_wloop(u -> {
+            if (!state.state()) {
+                promise.get().stop();
+            }
+            async_f(asyncAction);
+        }, loopInterval));
+        return promise.get();
+    }
 
     public static <X> Future<X> async_f(IAsyncAction action) {
         // change this uuid alternative
@@ -44,7 +65,7 @@ public class Async {
     }
 
     public static <X> Future<X> async(IAsyncAction action) {
-        // change this uuid alternative
+
         final CoID pointer = newPointer();
 
         Future<X> future = new Future<>(pointer);
@@ -121,11 +142,6 @@ public class Async {
         return promise;
     }
 
-    public static Promise async_loop_w(IAsyncAction action, final long repeatDelay, final long lifeTime) {
-        final Promise promise = async_loop_w(action, repeatDelay);
-        async_w((u) -> promise.stop(), lifeTime + repeatDelay);
-        return promise;
-    }
 
     public static Promise async_loop(IAsyncAction action, final long repeatDelay) {
         final Promise promise = new Promise();
@@ -144,8 +160,78 @@ public class Async {
         return promise;
     }
 
+    public static Promise async_loop_times(IAsyncAction loop, IAsyncAction finalAction, final long repeatDelay, final int repeatTime) {
+        final Promise promise = async_loop(loop, repeatDelay);
+
+        async_w((u)->{
+            promise.stop();
+            async_f(finalAction);
+        }, repeatDelay * repeatTime);
+        return promise;
+    }
+
+    public static Promise async_loop_times(IAsyncAction loop, final long repeatDelay, final int repeatTime) {
+        final Promise promise = async_loop(loop, repeatDelay);
+        async_w((u)->{
+            promise.stop();
+        }, repeatDelay * repeatTime);
+        return promise;
+    }
+
+    public static Promise async_loop_times_w(IAsyncAction loop, final long repeatDelay, final int repeatTime) {
+        final Promise promise = async_loop_m(loop, repeatDelay);
+        async_w(u -> {
+            promise.start();
+        }, repeatDelay);
+        async_w((u)->{
+            promise.stop();
+        }, repeatDelay * repeatTime);
+        return promise;
+    }
+
+
+    public static Promise async_loop_till(IAsyncAction loop, final long repeatDelay, final int till) {
+        final Promise promise = async_loop(loop, repeatDelay);
+        async_w((u) -> {
+            promise.stop();
+        }, till);
+        return promise;
+    }
+
+    public static Promise async_loop_till(IAsyncAction loop, IAsyncAction finalAction, final long repeatDelay, final int till) {
+        final Promise promise = async_loop(loop, repeatDelay);
+
+        async_w((u) -> {
+            promise.stop();
+            async_f(finalAction);
+        }, till);
+        return promise;
+    }
+    public static Promise async_loop_till_w(IAsyncAction loop, final long repeatDelay, final int till) {
+        final Promise promise = async_loop_m(loop, repeatDelay);
+        async_w(u -> {
+            promise.start();
+        }, repeatDelay);
+        async_w((u) -> {
+            promise.stop();
+        }, till);
+        return promise;
+    }
+
+    public static Promise async_loop_till_w(IAsyncAction loop, IAsyncAction finalAction, final long repeatDelay, final int till) {
+        final Promise promise = async_loop_m(loop, repeatDelay);
+        async_w(u -> {
+            promise.start();
+        }, repeatDelay);
+        async_w((u) -> {
+            async_f(finalAction);
+            promise.stop();
+        }, till);
+        return promise;
+    }
+
     /* same as async_loop but starts manually */
-    public static Promise async_loop_w(IAsyncAction action, final long repeatDelay) {
+    public static Promise async_loop_m(IAsyncAction action, final long repeatDelay) {
         final Promise promise = new Promise();
         Task<?> task = new Task<Object>(action) {
             @Override

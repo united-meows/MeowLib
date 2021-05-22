@@ -1,4 +1,7 @@
 package pisi.unitedmeows.meowlib.clazz;
 
-public class IProperty {
+public interface IProperty<X> {
+
+    void set(X value);
+    X get();
 }

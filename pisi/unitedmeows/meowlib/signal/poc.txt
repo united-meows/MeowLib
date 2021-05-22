@@ -1,0 +1,11 @@
+
+
+
+
+
+signal.listen(APP_KEY);
+
+signal.send(int dataTypeId, byte[] data, app_key)
+signal.send(int dataTypeId, string data, app_key)
+
+signal.discover(); /* discover all apps running in this machine */

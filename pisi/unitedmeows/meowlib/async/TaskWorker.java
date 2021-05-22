@@ -1,6 +1,5 @@
 package pisi.unitedmeows.meowlib.async;
 
-import com.sun.istack.internal.NotNull;
 import pisi.unitedmeows.meowlib.MeowLib;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
 import pisi.unitedmeows.meowlib.thread.kThread;

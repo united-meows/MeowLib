@@ -1,4 +1,6 @@
 package pisi.unitedmeows.meowlib.etc;
 
-public class Filtere {
+public interface IFilter<X> {
+
+    boolean check(X object);
 }
