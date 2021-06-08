@@ -1,4 +1,3 @@
 package pisi.unitedmeows.meowlib.clazz;
 
-public class delegate {
-}
+public interface delegate {}

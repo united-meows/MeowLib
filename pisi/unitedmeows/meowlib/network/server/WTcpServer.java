@@ -2,49 +2,55 @@ package pisi.unitedmeows.meowlib.network.server;
 
 import static pisi.unitedmeows.meowlib.async.Async.*;
 
-import com.sun.security.ntlm.Server;
 import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.clazz.event;
 import pisi.unitedmeows.meowlib.network.IPAddress;
+import pisi.unitedmeows.meowlib.network.NetworkConstants;
+import pisi.unitedmeows.meowlib.network.server.events.DSClientQuit;
+import pisi.unitedmeows.meowlib.network.server.events.DSDataReceived;
+import pisi.unitedmeows.meowlib.network.server.events.DSConnectionRequest;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class WServer {
+public class WTcpServer {
 
     private IPAddress bindAddress;
 
-    public event<DConnectionRequest> connectionRequest = new event<>();
-    public event<DClientDataReceived> dataReceived = new event<>();
+    public event<DSConnectionRequest> connectionRequestEvent = new event<>();
+    public event<DSDataReceived> dataReceivedEvent = new event<>();
+    public event<DSClientQuit> clientQuitEvent = new event<>();
 
     private ServerSocketChannel serverSocket;
 
-    private List<SocketChannel> connectedClients;
+    private HashMap<SocketChannel, Long> connectedClients;
 
     private Thread readingThread;
 
     private int port;
 
+    private boolean keepAlive;
+    private long maxKeepAliveInterval;
+    private Promise keepAlivePromise;
+
     private Promise connectionListenerPromise;
 
-    public WServer(IPAddress ipAddress, int port) {
+    public WTcpServer(IPAddress ipAddress, int port) {
         bindAddress = ipAddress;
         this.port = port;
-        connectedClients = new ArrayList<>();
+        connectedClients = new HashMap<>();
     }
 
     public IPAddress bindAddress() {
         return bindAddress;
     }
 
-    public WServer start() {
+    public WTcpServer start() {
         try {
             serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
@@ -54,13 +60,21 @@ public class WServer {
                 public void run() {
                     ByteBuffer buffer = ByteBuffer.allocate(2048 * 10);
                     while (serverSocket.isOpen()) {
-                        for (SocketChannel client : connectedClients) {
+                        for (SocketChannel client : connectedClients.keySet()) {
                             buffer.clear();
                             try {
                                 int read = client.read(buffer);
+                                byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
                                 if (read > 0) {
                                     buffer.flip();
-                                    dataReceived.run(client, buffer);
+                                    if (Arrays.equals(NetworkConstants.KEEPALIVE_DATA, data)) {
+                                        connectedClients.put(client, System.currentTimeMillis());
+
+                                        buffer.clear();
+                                        continue;
+                                    }
+
+                                    dataReceivedEvent.run(client, buffer);
                                     buffer.clear();
 
                                 }
@@ -88,8 +102,10 @@ public class WServer {
         }
     }
 
-    public WServer listen() {
+    public WTcpServer listen() {
         start();
+        if (connectionListenerPromise != null)
+            connectionListenerPromise.stop();
 
         connectionListenerPromise = async_loop(u -> {
             try {
@@ -98,9 +114,9 @@ public class WServer {
                 if (socketChannel != null) {
 
                     socketChannel.configureBlocking(false);
-                    connectionRequest.run(socketChannel);
+                    connectionRequestEvent.run(socketChannel);
                     if (socketChannel.isConnected()) {
-                        connectedClients.add(socketChannel);
+                        connectedClients.put(socketChannel, System.currentTimeMillis());
 
                     }
                 }
@@ -109,6 +125,25 @@ public class WServer {
 
             }
         }, 20);
+        if (keepAlivePromise != null)
+            keepAlivePromise.stop();
+
+        if (keepAlive) {
+            keepAlivePromise = async_loop(u -> {
+                List<SocketChannel> kickedList = new ArrayList<>();
+                for (Map.Entry<SocketChannel, Long> channel : connectedClients.entrySet()) {
+                    if (System.currentTimeMillis() - channel.getValue() >= maxKeepAliveInterval) {
+                        kickedList.add(channel.getKey());
+                    }
+                }
+                // kick expired keepalive timers
+                kickedList.forEach(x -> {
+                    kick(x);
+                    clientQuitEvent.run(x);
+                });
+
+            }, 1000);
+        }
 
 
 
@@ -121,16 +156,27 @@ public class WServer {
         try {
             socket.write(ByteBuffer.wrap(data));
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
-    public WServer kick(SocketChannel socketChannel) {
+    public WTcpServer kick(SocketChannel socketChannel) {
         try {
+            connectedClients.remove(socketChannel);
             socketChannel.close();
         } catch (IOException e) {
 
         }
+        return this;
+    }
+
+    public WTcpServer setMaxKeepAliveInterval(long maxKeepAliveInterval) {
+        this.maxKeepAliveInterval = maxKeepAliveInterval;
+        return this;
+    }
+
+    public WTcpServer setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
         return this;
     }
 }

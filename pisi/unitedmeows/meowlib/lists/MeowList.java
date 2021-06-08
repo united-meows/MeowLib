@@ -1,28 +1,38 @@
 package pisi.unitedmeows.meowlib.lists;
 
-import pisi.unitedmeows.meowlib.etc.Tail;
 
-@Deprecated
+import pisi.unitedmeows.meowlib.MeowLib;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MeowList<X> {
 
-    private Tail<X> currentTail;
+
+    private List<Tail<X>> tails;
+    private int size;
 
     public MeowList() {
-        currentTail = new Tail<>();
+        tails = new ArrayList<>();
     }
 
-    public MeowList(int tailLength) {
-        currentTail = new Tail<>(tailLength);
+    public void push(X x) {
+        if (size + 1 >= tails.size() * 5) {
+            tails.add(new Tail<X>());
+        }
+        tails.get(tails.size() -1).push(x);
+        size++;
     }
 
-    public void push(X element) {
-        currentTail.add(element);
+    public void remove(int index) {
+        // credits to aris
+        tails.get(((index - (index % 5)) / 5) + index % 5).remove(index);
+        size--;
     }
-    public void kick(X element) { currentTail.remove(element); }
-    public void kick(X element, boolean deepLook) {
-        currentTail.remove(element, deepLook);
+
+    public X get (int index) {
+        return tails.get(((index - (index % 5)) / 5)).get(index % 5);
     }
-    public void kick(int index) {
-        currentTail.removeAt(index);
-    }
+
+
 }
