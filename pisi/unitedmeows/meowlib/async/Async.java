@@ -256,7 +256,7 @@ public class Async {
     }
 
     public static Task<?> await(Task<?> task) {
-        long checkTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
+        long checkTime = (long)MeowLib.mLibSettings().get(MLibSettings.ASYNC_AWAIT_CHECK_DELAY).getValue();
         while (task.state() == Task.State.RUNNING || task.state() == Task.State.IDLE) {
             kThread.sleep(checkTime);
         }

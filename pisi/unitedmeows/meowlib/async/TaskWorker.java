@@ -2,10 +2,6 @@ package pisi.unitedmeows.meowlib.async;
 
 import pisi.unitedmeows.meowlib.MeowLib;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
-import pisi.unitedmeows.meowlib.thread.kThread;
-
-import java.util.ArrayDeque;
-import java.util.Queue;
 
 public class TaskWorker extends Thread {
 
@@ -51,7 +47,7 @@ public class TaskWorker extends Thread {
 
     public boolean isBusy() {
         if (isWorking()) {
-            return runningTask.timeElapsed() >= (long) MeowLib.settings().get(MLibSettings.ASYNC_WORKER_BUSY).getValue();
+            return runningTask.timeElapsed() >= (long) MeowLib.mLibSettings().get(MLibSettings.ASYNC_WORKER_BUSY).getValue();
         }
         return false;
     }

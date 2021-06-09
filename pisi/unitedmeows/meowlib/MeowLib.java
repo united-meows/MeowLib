@@ -5,6 +5,8 @@ import pisi.unitedmeows.meowlib.async.ITaskPool;
 import pisi.unitedmeows.meowlib.etc.IAction;
 import pisi.unitedmeows.meowlib.etc.MLibSetting;
 import pisi.unitedmeows.meowlib.etc.MLibSettings;
+import pisi.unitedmeows.meowlib.ex.Ex;
+import pisi.unitedmeows.meowlib.ex.ExceptionManager;
 import pisi.unitedmeows.meowlib.variables.ubyte;
 import pisi.unitedmeows.meowlib.variables.uint;
 
@@ -30,8 +32,8 @@ public class MeowLib {
         }
         taskPool.setup();
     }
-
-    public static HashMap<MLibSettings, MLibSetting<Serializable>> settings() {
+    /* change this method name */
+    public static HashMap<MLibSettings, MLibSetting<Serializable>> mLibSettings() {
         return SETTINGS;
     }
 
@@ -50,6 +52,14 @@ public class MeowLib {
 
     public static uint uint(long value) {
         return new uint(uint.convert(value));
+    }
+
+    public static <X extends Ex> void throwEx(X ex) {
+        ExceptionManager.throwEx(ex);
+    }
+
+    public static <X extends Ex> X lastError() {
+        return ExceptionManager.lastError();
     }
 
     public static void useTaskPool(ITaskPool newPool) {

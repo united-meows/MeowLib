@@ -4,8 +4,12 @@ import static pisi.unitedmeows.meowlib.async.Async.*;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import pisi.unitedmeows.meowlib.MeowLib;
+import static pisi.unitedmeows.meowlib.MeowLib.*;
 import pisi.unitedmeows.meowlib.async.Future;
 import pisi.unitedmeows.meowlib.async.Task;
 
@@ -13,9 +17,11 @@ import pisi.unitedmeows.meowlib.clazz.onion;
 import pisi.unitedmeows.meowlib.clazz.prop;
 import pisi.unitedmeows.meowlib.etc.CoID;
 
+import pisi.unitedmeows.meowlib.ex.impl.NotFoundEx;
 import pisi.unitedmeows.meowlib.network.IPAddress;
 import pisi.unitedmeows.meowlib.network.client.WTcpClient;
 import pisi.unitedmeows.meowlib.network.client.events.DCDataReceived;
+import pisi.unitedmeows.meowlib.network.server.WCTcpTunnel;
 import pisi.unitedmeows.meowlib.network.server.events.DSClientQuit;
 import pisi.unitedmeows.meowlib.network.server.events.DSDataReceived;
 import pisi.unitedmeows.meowlib.network.server.events.DSConnectionRequest;
@@ -48,52 +54,48 @@ public class Start {
 
 
     public static void main(String[] args) {
-
-        Signal.discover_fast(IPAddress.LOOPBACK);
-        System.out.println("end");
-
         WTcpServer wTcpServer = new WTcpServer(IPAddress.LOOPBACK, 2174);
-        wTcpServer.setKeepAlive(true).setMaxKeepAliveInterval(1000);
         wTcpServer.listen();
 
-        wTcpServer.connectionRequestEvent.bind(new DSConnectionRequest() {
-            @Override
-            public void onClientConnecting(SocketChannel client) {
-                System.out.println("Connection received");
-            }
-        });
+        final SocketChannel channel1, channel2;
 
-        wTcpServer.dataReceivedEvent.bind(new DSDataReceived() {
-            @Override
-            public void onDataReceived(SocketChannel client, ByteBuffer data) {
-                System.out.println(new String(data.array()));
-                wTcpServer.send(client, "meowlib".getBytes());
-            }
-        });
 
-        wTcpServer.clientQuitEvent.bind(new DSClientQuit() {
-            @Override
-            public void onClientQuit(SocketChannel client) {
-                System.out.println("client kicked");
-            }
-        });
-        kThread.sleep(1000);
-
-        WTcpClient client = new WTcpClient();
-        client.setKeepAlive(true).setKeepAliveInterval(500);
-
-        client.connect(IPAddress.LOOPBACK, 2174);
-        kThread.sleep(1000);
-        client.dataReceivedEvent.bind(new DCDataReceived() {
+        WTcpClient client1 = new WTcpClient();
+        client1.dataReceivedEvent.bind(new DCDataReceived() {
             @Override
             public void onDataReceived(byte[] data) {
-                System.out.println(new String(data));
+                System.out.println("Client1 << " + new String(data));
             }
         });
-        client.send("hello world".getBytes());
+        client1.connect(IPAddress.LOOPBACK, 2174);
 
+        WTcpClient client2 = new WTcpClient();
+        client2.dataReceivedEvent.bind(new DCDataReceived() {
+            @Override
+            public void onDataReceived(byte[] data) {
+                System.out.println("Client2 << " + new String(data));
+            }
+        });
+        client2.connect(IPAddress.LOOPBACK, 2174);
+
+
+
+        while (wTcpServer.connectedClients().size() < 2) {
+            kThread.sleep(500);
+        }
+
+        WCTcpTunnel wcTcpTunnel = new WCTcpTunnel(wTcpServer, wTcpServer.connectedClients().get(0), wTcpServer.connectedClients().get(1));
+
+        kThread.sleep(1000);
+        client1.send("Hello from the other side".getBytes());
+        client2.send("Hi".getBytes());
 
     }
+
+
+
+    static List<String> players = new ArrayList<>();
+
 
 
     public static void asyncTest(CoID id) {

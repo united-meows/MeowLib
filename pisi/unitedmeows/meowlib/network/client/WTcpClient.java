@@ -15,6 +15,8 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import static pisi.unitedmeows.meowlib.async.Async.*;
+
 public class WTcpClient {
 
     private Socket socket;
@@ -72,12 +74,15 @@ public class WTcpClient {
     }
 
     public void send(byte[] data) {
-        try {
-            outputStream.write(data);
-            outputStream.flush();
-        } catch (IOException e) {
+        async(u-> {
+            try {
+                outputStream.write(data);
+                outputStream.flush();
+            } catch (IOException e) {
 
-        }
+            }
+        });
+
     }
 
     public boolean isConnected() {
@@ -90,10 +95,22 @@ public class WTcpClient {
 
                 int size = inputStream.read(BUFFER);
                 byte[] data = Arrays.copyOf(BUFFER, size);
+                System.out.println("Received: " + new String(data));
                 // received
                 dataReceivedEvent.run(data);
 
             } catch (Exception ex) {}
+        }
+    }
+
+    public void close() {
+        dataReceivedEvent.unbindAll();
+        keepAlivePromise.stop();
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+
         }
     }
 

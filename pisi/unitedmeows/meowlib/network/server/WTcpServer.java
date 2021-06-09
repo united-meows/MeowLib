@@ -74,7 +74,7 @@ public class WTcpServer {
                                         continue;
                                     }
 
-                                    dataReceivedEvent.run(client, buffer);
+                                    dataReceivedEvent.run(client, data);
                                     buffer.clear();
 
                                 }
@@ -153,11 +153,14 @@ public class WTcpServer {
     }
 
     public void send(SocketChannel socket, byte[] data) {
-        try {
-            socket.write(ByteBuffer.wrap(data));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        async(uuid -> {
+            try {
+                socket.write(ByteBuffer.wrap(data));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
     public WTcpServer kick(SocketChannel socketChannel) {
@@ -168,6 +171,10 @@ public class WTcpServer {
 
         }
         return this;
+    }
+
+    public List<SocketChannel> connectedClients() {
+        return new ArrayList<SocketChannel>(connectedClients.keySet());
     }
 
     public WTcpServer setMaxKeepAliveInterval(long maxKeepAliveInterval) {

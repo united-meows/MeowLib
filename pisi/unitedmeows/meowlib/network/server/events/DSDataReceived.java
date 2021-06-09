@@ -6,5 +6,5 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public abstract class DSDataReceived implements delegate {
-    public abstract void onDataReceived(SocketChannel client, ByteBuffer data);
+    public abstract void onDataReceived(SocketChannel client, byte[] data);
 }

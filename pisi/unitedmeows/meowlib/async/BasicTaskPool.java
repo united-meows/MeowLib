@@ -35,7 +35,7 @@ public class BasicTaskPool implements ITaskPool {
         while (true) {
             boolean allBusy = true;
             List<TaskWorker> nWorkings = new ArrayList<>();
-            long nWorkingTime = (long) MeowLib.settings().get(MLibSettings.ASYNC_NWORKING_TIME).getValue();
+            long nWorkingTime = (long) MeowLib.mLibSettings().get(MLibSettings.ASYNC_NWORKING_TIME).getValue();
             for (TaskWorker worker : taskWorkers) {
                 if (!worker.isBusy()) {
                     allBusy = false;
@@ -71,7 +71,7 @@ public class BasicTaskPool implements ITaskPool {
                 waitQueue.remove(task);
             }
 
-            kThread.sleep((long) MeowLib.settings().get(MLibSettings.ASYNC_CHECK_BUSY).getValue());
+            kThread.sleep((long) MeowLib.mLibSettings().get(MLibSettings.ASYNC_CHECK_BUSY).getValue());
         }
     }
 
@@ -96,7 +96,7 @@ public class BasicTaskPool implements ITaskPool {
             return taskQueue.poll();
         }
 
-        long waitTime = (long)MeowLib.settings().get(MLibSettings.ASYNC_POLL_WAIT_DELAY).getValue();
+        long waitTime = (long)MeowLib.mLibSettings().get(MLibSettings.ASYNC_POLL_WAIT_DELAY).getValue();
 
         while (taskQueue.isEmpty()) {
             kThread.sleep(waitTime);
