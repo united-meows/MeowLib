@@ -12,11 +12,12 @@ public class CoID implements Comparable<CoID> {
     public static final String ALL_LOWERCASE = "abcdefghijklmnoprstuvyzxq";
     public static final String SPECIAL_CHARS = "COMPLEX2173";
     private static final Pattern coidPatern = Pattern.compile("[COMPLEX2173]{2}\\$[A-Z][0-9][A-Z][0-9]\\-[a-z]{2}[0-9]\\-[COMPLEX2173][A-Z][a-z][A-Z]{3}[a-z]{2}\\-[0-9]{2}");
-    private static final Random random;
+    private static Random random = new Random();
     private static final int COID_LENGTH = 23;
 
-    static {
-        random = new Random();
+
+    public static void setRandom(Random random) {
+        CoID.random = random;
     }
 
     private final String value;

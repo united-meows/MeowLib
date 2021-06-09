@@ -29,7 +29,7 @@ public class WTcpClient {
     private int keepAliveInterval = 20000;
     private Promise keepAlivePromise;
 
-    public WTcpClient() {
+    public WTcpClient(/* proxy support ? */) {
         socket = new Socket();
     }
 
@@ -39,7 +39,7 @@ public class WTcpClient {
             final SocketAddress socketAddress = new InetSocketAddress(inetAddress, port);
             socket.connect(socketAddress);
         } catch (IOException e) {
-            e.printStackTrace();
+            /* find a better way for exceptions */
         }
 
         try {
@@ -53,7 +53,7 @@ public class WTcpClient {
             try {
                 receiveThread.stop();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                //todo:
             }
         }
         if (keepAlivePromise != null) {
@@ -61,7 +61,9 @@ public class WTcpClient {
         }
         keepAlivePromise = Async.async_loop(x-> {
             // send keepalive
-            send(NetworkConstants.KEEPALIVE_DATA);
+            if (socket.isConnected()) {
+                send(NetworkConstants.KEEPALIVE_DATA);
+            }
         }, keepAliveInterval);
 
         receiveThread = new Thread(this::receive);
@@ -74,8 +76,12 @@ public class WTcpClient {
             outputStream.write(data);
             outputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
+    }
+
+    public boolean isConnected() {
+        return socket.isConnected();
     }
 
     private void receive() {
@@ -103,5 +109,9 @@ public class WTcpClient {
     public WTcpClient setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
+    }
+
+    public Socket socket() {
+        return socket;
     }
 }

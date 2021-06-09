@@ -20,6 +20,7 @@ import pisi.unitedmeows.meowlib.network.server.events.DSClientQuit;
 import pisi.unitedmeows.meowlib.network.server.events.DSDataReceived;
 import pisi.unitedmeows.meowlib.network.server.events.DSConnectionRequest;
 import pisi.unitedmeows.meowlib.network.server.WTcpServer;
+import pisi.unitedmeows.meowlib.signal.Signal;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
 public class Start {
@@ -47,6 +48,10 @@ public class Start {
 
 
     public static void main(String[] args) {
+
+        Signal.discover_fast(IPAddress.LOOPBACK);
+        System.out.println("end");
+
         WTcpServer wTcpServer = new WTcpServer(IPAddress.LOOPBACK, 2174);
         wTcpServer.setKeepAlive(true).setMaxKeepAliveInterval(1000);
         wTcpServer.listen();
