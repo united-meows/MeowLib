@@ -1,5 +1,8 @@
 package pisi.unitedmeows.meowlib.network;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class IPAddress {
     public static IPAddress LOOPBACK    = new IPAddress("127.0.0.1");
     public static IPAddress ANY         = new IPAddress("0.0.0.0");
@@ -16,7 +19,11 @@ public class IPAddress {
     }
 
     public static IPAddress parse(String address) {
-        return new IPAddress(address);
+        try {
+            return new IPAddress(InetAddress.getByName(address).getHostAddress());
+        } catch (UnknownHostException e) {
+            return new IPAddress(address);
+        }
     }
 
 }

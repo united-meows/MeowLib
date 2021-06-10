@@ -1,9 +1,8 @@
 package pisi.unitedmeows.meowlib.network.server.events;
 
 import pisi.unitedmeows.meowlib.clazz.delegate;
-
-import java.nio.channels.SocketChannel;
+import pisi.unitedmeows.meowlib.network.server.SocketClient;
 
 public abstract class DSClientQuit implements delegate {
-    public abstract void onClientQuit(SocketChannel client);
+    public abstract void onClientQuit(SocketClient client);
 }

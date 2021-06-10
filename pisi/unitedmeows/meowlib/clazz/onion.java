@@ -1,6 +1,6 @@
 package pisi.unitedmeows.meowlib.clazz;
 
-import pisi.unitedmeows.meowlib.memory.MMemory;
+import pisi.unitedmeows.meowlib.memory.WMemory;
 
 public class onion<X> {
 
@@ -16,9 +16,9 @@ public class onion<X> {
 
     public void set(X value) {
         if (pointer == -1) {
-            pointer = MMemory.write(value);
+            pointer = WMemory.write(value);
         } else {
-            MMemory.write(pointer, value);
+            WMemory.write(pointer, value);
         }
     }
 
@@ -27,12 +27,12 @@ public class onion<X> {
             return null;
         }
 
-        return MMemory.read(pointer);
+        return WMemory.read(pointer);
     }
 
     public void remove() {
         if (pointer != -1) {
-            MMemory.remove(pointer);
+            WMemory.remove(pointer);
             pointer = -1;
         }
     }

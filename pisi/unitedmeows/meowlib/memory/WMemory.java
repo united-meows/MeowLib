@@ -3,7 +3,7 @@ package pisi.unitedmeows.meowlib.memory;
 import java.util.HashMap;
 import java.util.Random;
 
-public class MMemory {
+public class WMemory {
 
     private static final HashMap<Integer, Object> variables = new HashMap<>();
 

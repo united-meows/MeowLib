@@ -28,7 +28,7 @@ public class WTcpServer {
 
     private ServerSocketChannel serverSocket;
 
-    private HashMap<SocketChannel, Long> connectedClients;
+    private List<SocketClient> connectedClients;
 
     private Thread readingThread;
 
@@ -43,7 +43,7 @@ public class WTcpServer {
     public WTcpServer(IPAddress ipAddress, int port) {
         bindAddress = ipAddress;
         this.port = port;
-        connectedClients = new HashMap<>();
+            connectedClients = new ArrayList<>();
     }
 
     public IPAddress bindAddress() {
@@ -60,16 +60,15 @@ public class WTcpServer {
                 public void run() {
                     ByteBuffer buffer = ByteBuffer.allocate(2048 * 10);
                     while (serverSocket.isOpen()) {
-                        for (SocketChannel client : connectedClients.keySet()) {
+                        for (SocketClient client : connectedClients) {
                             buffer.clear();
                             try {
-                                int read = client.read(buffer);
+                                int read = client.socketChannel().read(buffer);
                                 byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
                                 if (read > 0) {
                                     buffer.flip();
                                     if (Arrays.equals(NetworkConstants.KEEPALIVE_DATA, data)) {
-                                        connectedClients.put(client, System.currentTimeMillis());
-
+                                        client.beat();
                                         buffer.clear();
                                         continue;
                                     }
@@ -116,7 +115,10 @@ public class WTcpServer {
                     socketChannel.configureBlocking(false);
                     connectionRequestEvent.run(socketChannel);
                     if (socketChannel.isConnected()) {
-                        connectedClients.put(socketChannel, System.currentTimeMillis());
+                        SocketClient socketClient = new SocketClient(socketChannel);
+                        socketClient.beat();
+                        connectedClients.add(socketClient);
+
 
                     }
                 }
@@ -130,10 +132,11 @@ public class WTcpServer {
 
         if (keepAlive) {
             keepAlivePromise = async_loop(u -> {
-                List<SocketChannel> kickedList = new ArrayList<>();
-                for (Map.Entry<SocketChannel, Long> channel : connectedClients.entrySet()) {
-                    if (System.currentTimeMillis() - channel.getValue() >= maxKeepAliveInterval) {
-                        kickedList.add(channel.getKey());
+                List<SocketClient> kickedList = new ArrayList<>();
+                final long currentTime = System.currentTimeMillis();
+                for (SocketClient client : connectedClients) {
+                    if (currentTime - client.lastHeartbeat() >= maxKeepAliveInterval) {
+                        kickedList.add(client);
                     }
                 }
                 // kick expired keepalive timers
@@ -163,19 +166,16 @@ public class WTcpServer {
 
     }
 
-    public WTcpServer kick(SocketChannel socketChannel) {
-        try {
-            connectedClients.remove(socketChannel);
-            socketChannel.close();
-        } catch (IOException e) {
-
-        }
+    public WTcpServer kick(SocketClient socketClient) {
+        connectedClients.remove(socketClient);
+        socketClient.close();
         return this;
     }
 
-    public List<SocketChannel> connectedClients() {
-        return new ArrayList<SocketChannel>(connectedClients.keySet());
+    public List<SocketClient> connectedClients() {
+        return connectedClients;
     }
+
 
     public WTcpServer setMaxKeepAliveInterval(long maxKeepAliveInterval) {
         this.maxKeepAliveInterval = maxKeepAliveInterval;
