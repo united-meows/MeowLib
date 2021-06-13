@@ -34,7 +34,6 @@ public class event<X extends delegate> {
     public void run(Object... params) {
         delegates.values().forEach(x-> {
             try {
-
                 Method method = x.getClass().getDeclaredMethods()[0];
                 if (!method.isAccessible()) {
                     method.setAccessible(true);

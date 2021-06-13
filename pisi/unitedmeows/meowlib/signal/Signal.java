@@ -36,7 +36,6 @@ public class Signal {
     }
 
     @Deprecated
-    @SuppressWarnings("buggy")
     public static List<Integer> discover_fast(IPAddress address) {
         final List<Integer> ports = new ArrayList<>();
 

@@ -44,6 +44,7 @@ public class WTcpClient {
             /* find a better way for exceptions */
         }
 
+
         try {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();

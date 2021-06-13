@@ -6,6 +6,7 @@ import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.clazz.event;
 import pisi.unitedmeows.meowlib.network.IPAddress;
 import pisi.unitedmeows.meowlib.network.NetworkConstants;
+import pisi.unitedmeows.meowlib.network.client.WTcpClient;
 import pisi.unitedmeows.meowlib.network.server.events.DSClientQuit;
 import pisi.unitedmeows.meowlib.network.server.events.DSDataReceived;
 import pisi.unitedmeows.meowlib.network.server.events.DSConnectionRequest;
@@ -21,7 +22,7 @@ import java.util.*;
 public class WTcpServer {
 
     private IPAddress bindAddress;
-
+    private byte serverId;
     public event<DSConnectionRequest> connectionRequestEvent = new event<>();
     public event<DSDataReceived> dataReceivedEvent = new event<>();
     public event<DSClientQuit> clientQuitEvent = new event<>();
@@ -43,7 +44,7 @@ public class WTcpServer {
     public WTcpServer(IPAddress ipAddress, int port) {
         bindAddress = ipAddress;
         this.port = port;
-            connectedClients = new ArrayList<>();
+        connectedClients = new ArrayList<>();
     }
 
     public IPAddress bindAddress() {
@@ -85,15 +86,18 @@ public class WTcpServer {
                     }
                 }
             });
+            serverId = SocketClient.sharedConnectedServer.put(this);
         } catch (Exception ex) {
             return null;
         }
+
         readingThread.start();
         return this;
     }
 
     public void stop() {
         connectionListenerPromise.stop();
+        SocketClient.sharedConnectedServer.remove(serverId);
         try {
             serverSocket.close();
         } catch (IOException e) {
@@ -115,7 +119,7 @@ public class WTcpServer {
                     socketChannel.configureBlocking(false);
                     connectionRequestEvent.run(socketChannel);
                     if (socketChannel.isConnected()) {
-                        SocketClient socketClient = new SocketClient(socketChannel);
+                        SocketClient socketClient = new SocketClient(socketChannel, serverId);
                         socketClient.beat();
                         connectedClients.add(socketClient);
 

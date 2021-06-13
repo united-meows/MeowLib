@@ -14,7 +14,9 @@ public class WTcpClientPool {
     /* todo: add shared<WTcpServer> here */
 
     public WTcpClientPool(IPAddress address, int port) {
-        this(new WTcpServer(address, port));
+        server = new WTcpServer(address, port);
+        server.listen();
+        _start();
     }
 
 
