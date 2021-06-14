@@ -35,6 +35,7 @@ public class WTcpServer {
 
     private Thread readingThread;
     private Thread writeThread;
+    private Thread connectionThread;
 
     private int port;
 
@@ -42,7 +43,6 @@ public class WTcpServer {
     private long maxKeepAliveInterval;
     private Promise keepAlivePromise;
 
-    private Promise connectionListenerPromise;
 
     public WTcpServer(IPAddress ipAddress, int port) {
         bindAddress = ipAddress;
@@ -114,27 +114,23 @@ public class WTcpServer {
             return null;
         }
 
+        if (connectionThread != null) {
+            try {
+                connectionThread.stop();
+            } catch (Exception ex) {
+
+            }
+        }
+
+        connectionThread = new Thread(this::connectionListener);
+        connectionThread.start();
         readingThread.start();
         return this;
     }
 
 
-    public void stop() {
-        connectionListenerPromise.stop();
-        SocketClient.sharedConnectedServer.remove(serverId);
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public WTcpServer listen() {
-        start();
-        if (connectionListenerPromise != null)
-            connectionListenerPromise.stop();
-
-        connectionListenerPromise = async_loop(u -> {
+    private void connectionListener() {
+        while (serverSocket.isOpen()) {
             try {
                 // Client connecting to the server
                 SocketChannel socketChannel = serverSocket.accept();
@@ -150,7 +146,22 @@ public class WTcpServer {
             } catch (IOException e) {
 
             }
-        }, 20);
+            kThread.sleep(20);
+        }
+    }
+
+    public void stop() {
+        SocketClient.sharedConnectedServer.remove(serverId);
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public WTcpServer listen() {
+        start();
+
         if (keepAlivePromise != null)
             keepAlivePromise.stop();
 

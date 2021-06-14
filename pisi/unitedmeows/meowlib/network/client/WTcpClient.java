@@ -125,7 +125,7 @@ public class WTcpClient {
     }
 
     public void send(byte[] data) {
-        writeQueue.offer(data);
+        writeQueue.add(data);
     }
 
     public boolean isConnected() {
@@ -133,9 +133,8 @@ public class WTcpClient {
     }
 
     private void receive() {
-        while (socket.isConnected() && !socket.isClosed()) {
+        while (!socket.isClosed()) {
             try {
-
                 int size = inputStream.read(BUFFER);
                 byte[] data = Arrays.copyOf(BUFFER, size);
                 // received
