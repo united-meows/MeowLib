@@ -1,6 +1,7 @@
 package pisi.unitedmeows.meowlib.clazz;
 
-import pisi.unitedmeows.meowlib.predefined.WRandom;
+import pisi.unitedmeows.meowlib.etc.Tuple;
+import pisi.unitedmeows.meowlib.random.WRandom;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,7 +12,7 @@ import java.util.Random;
 
 public class event<X extends delegate> {
 
-    private HashMap<Integer, X> delegates;
+    private HashMap<Integer, Tuple<X, Method>> delegates;
 
     public event() {
         delegates = new HashMap<>();
@@ -19,7 +20,11 @@ public class event<X extends delegate> {
 
     public int bind(X delegate) {
         int id = WRandom.BASIC.nextInt();
-        delegates.put(id, delegate);
+        Method method = delegate.getClass().getDeclaredMethods()[0];
+        if (!method.isAccessible()) {
+            method.setAccessible(true);
+        }
+        delegates.put(id, new Tuple<>(delegate, method));
         return id;
     }
 
@@ -34,12 +39,7 @@ public class event<X extends delegate> {
     public void run(Object... params) {
         delegates.values().forEach(x-> {
             try {
-                Method method = x.getClass().getDeclaredMethods()[0];
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
-                }
-
-                method.invoke(x, params);
+                x.getSecond().invoke(x.getFirst(), params);
             } catch (IllegalAccessException e) {
 
                 e.printStackTrace();

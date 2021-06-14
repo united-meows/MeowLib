@@ -122,8 +122,6 @@ public class WTcpServer {
                         SocketClient socketClient = new SocketClient(socketChannel, serverId);
                         socketClient.beat();
                         connectedClients.add(socketClient);
-
-
                     }
                 }
 

@@ -18,6 +18,10 @@ public class IPAddress {
         return address;
     }
 
+    public static IPAddress from(String address) {
+        return new IPAddress(address);
+    }
+
     public static IPAddress parse(String address) {
         try {
             return new IPAddress(InetAddress.getByName(address).getHostAddress());

@@ -13,7 +13,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Queue;
 
 import static pisi.unitedmeows.meowlib.async.Async.*;
 
@@ -27,17 +29,24 @@ public class WTcpClient {
     private InputStream inputStream;
     private OutputStream outputStream;
 
+
+    private Queue<byte[]> writeQueue;
+
+    private Promise writePromise;
+
+
     private boolean keepAlive;
     private int keepAliveInterval = 20000;
     private Promise keepAlivePromise;
 
     public WTcpClient(/* proxy support ? */) {
         socket = new Socket();
+        writeQueue = new ArrayDeque<>();
     }
 
     public WTcpClient connect(IPAddress ipAddress, int port) {
         try {
-            InetAddress inetAddress= InetAddress.getByName(ipAddress.getAddress());
+            InetAddress inetAddress = InetAddress.getByName(ipAddress.getAddress());
             final SocketAddress socketAddress = new InetSocketAddress(inetAddress, port);
             socket.connect(socketAddress);
         } catch (IOException e) {
@@ -62,12 +71,37 @@ public class WTcpClient {
         if (keepAlivePromise != null) {
             keepAlivePromise.stop();
         }
-        keepAlivePromise = Async.async_loop(x-> {
-            // send keepalive
-            if (socket.isConnected()) {
-                send(NetworkConstants.KEEPALIVE_DATA);
-            }
-        }, keepAliveInterval);
+        if (keepAlive) {
+            keepAlivePromise = Async.async_loop(x -> {
+                // send keepalive
+                if (socket.isConnected()) {
+                    send(NetworkConstants.KEEPALIVE_DATA);
+                }
+            }, keepAliveInterval);
+        }
+
+        if (writePromise != null) {
+            writePromise.stop();
+        }
+
+        async_when(this::isConnected, u -> {
+            writePromise = async_loop(x -> {
+
+                if (!writeQueue.isEmpty()) {
+                    byte[] current = writeQueue.poll();
+                    try {
+                        outputStream.write(current);
+
+                        outputStream.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }, 1);
+        }, 200);
+
 
         receiveThread = new Thread(this::receive);
         receiveThread.start();
@@ -75,15 +109,7 @@ public class WTcpClient {
     }
 
     public void send(byte[] data) {
-        async(u-> {
-            try {
-                outputStream.write(data);
-                outputStream.flush();
-            } catch (IOException e) {
-
-            }
-        });
-
+        writeQueue.add(data);
     }
 
     public boolean isConnected() {
@@ -96,9 +122,8 @@ public class WTcpClient {
 
                 int size = inputStream.read(BUFFER);
                 byte[] data = Arrays.copyOf(BUFFER, size);
-                System.out.println("Received: " + new String(data));
                 // received
-                dataReceivedEvent.run(data);
+                dataReceivedEvent.run((Object) data);
 
             } catch (Exception ex) {}
         }
@@ -107,7 +132,9 @@ public class WTcpClient {
     public void close() {
         dataReceivedEvent.unbindAll();
         keepAlivePromise.stop();
-
+        writeQueue.clear();
+        writePromise.stop();
+        //tm anladim
         try {
             socket.close();
         } catch (IOException e) {

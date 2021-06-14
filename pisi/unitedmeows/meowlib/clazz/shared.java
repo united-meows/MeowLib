@@ -12,7 +12,7 @@ public class shared<X> {
     }
 
     public byte put(X obj) {
-        final byte identifier = WRandom.GET.nextByte();
+        final byte identifier = WRandom.BASIC.nextByte();
         values.put(identifier, obj);
         return identifier;
     }

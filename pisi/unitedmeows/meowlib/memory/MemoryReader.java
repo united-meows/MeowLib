@@ -1,13 +1,53 @@
 package pisi.unitedmeows.meowlib.memory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
+import pisi.unitedmeows.meowlib.utils.ImageUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.ByteBuffer;
 
-@Deprecated
-public class MemoryReader extends PipedInputStream {
+public class MemoryReader extends DataInputStream {
+
+    private ByteArrayInputStream inputStream;
+
+    public MemoryReader(byte[] data) {
+        super(null);
+        inputStream = new ByteArrayInputStream(data);
+        in = inputStream;
+    }
+
+
+
+    public String readString() {
+        try {
+            return super.readUTF();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public BufferedImage readImage() {
+        try {
+            int length = readInt();
+            byte[] bytes = new byte[length];
+            read(bytes);
+            return ImageUtils.toBufferedImage(bytes);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public byte[] getBytes() {
+        byte[] array = new byte[inputStream.available()];
+        try {
+            inputStream.read(array);
+
+            return array;
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
 }
 
