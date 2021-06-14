@@ -4,6 +4,7 @@ import static pisi.unitedmeows.meowlib.async.Async.*;
 
 import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.clazz.event;
+import pisi.unitedmeows.meowlib.ex.Ex;
 import pisi.unitedmeows.meowlib.network.IPAddress;
 import pisi.unitedmeows.meowlib.network.NetworkConstants;
 import pisi.unitedmeows.meowlib.network.client.WTcpClient;
@@ -18,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WTcpServer {
 
@@ -29,9 +31,10 @@ public class WTcpServer {
 
     private ServerSocketChannel serverSocket;
 
-    private List<SocketClient> connectedClients;
+    private CopyOnWriteArrayList<SocketClient> connectedClients;
 
     private Thread readingThread;
+    private Thread writeThread;
 
     private int port;
 
@@ -44,7 +47,7 @@ public class WTcpServer {
     public WTcpServer(IPAddress ipAddress, int port) {
         bindAddress = ipAddress;
         this.port = port;
-        connectedClients = new ArrayList<>();
+        connectedClients = new CopyOnWriteArrayList<>();
     }
 
     public IPAddress bindAddress() {
@@ -62,9 +65,13 @@ public class WTcpServer {
                     ByteBuffer buffer = ByteBuffer.allocate(2048 * 10);
                     while (serverSocket.isOpen()) {
                         for (SocketClient client : connectedClients) {
-                            buffer.clear();
                             try {
                                 int read = client.socketChannel().read(buffer);
+                                if (read == -1) {
+                                    kick(client);
+                                    continue;
+                                }
+
                                 byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
                                 if (read > 0) {
                                     buffer.flip();
@@ -86,6 +93,22 @@ public class WTcpServer {
                     }
                 }
             });
+            if (writeThread != null) {
+                try {
+                    writeThread.stop();
+                } catch (Exception ex) {}
+            }
+            writeThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (serverSocket.isOpen()) {
+
+
+                        kThread.sleep(1);
+                    }
+                }
+            });
+
             serverId = SocketClient.sharedConnectedServer.put(this);
         } catch (Exception ex) {
             return null;
@@ -94,6 +117,7 @@ public class WTcpServer {
         readingThread.start();
         return this;
     }
+
 
     public void stop() {
         connectionListenerPromise.stop();
@@ -117,12 +141,10 @@ public class WTcpServer {
                 if (socketChannel != null) {
 
                     socketChannel.configureBlocking(false);
-                    connectionRequestEvent.run(socketChannel);
-                    if (socketChannel.isConnected()) {
-                        SocketClient socketClient = new SocketClient(socketChannel, serverId);
-                        socketClient.beat();
-                        connectedClients.add(socketClient);
-                    }
+                    SocketClient socketClient = new SocketClient(socketChannel, serverId);
+                    socketClient.beat();
+                    connectedClients.add(socketClient);
+                    connectionRequestEvent.run(socketClient);
                 }
 
             } catch (IOException e) {
@@ -157,16 +179,6 @@ public class WTcpServer {
         return this;
     }
 
-    public void send(SocketChannel socket, byte[] data) {
-        async(uuid -> {
-            try {
-                socket.write(ByteBuffer.wrap(data));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-    }
 
     public WTcpServer kick(SocketClient socketClient) {
         connectedClients.remove(socketClient);

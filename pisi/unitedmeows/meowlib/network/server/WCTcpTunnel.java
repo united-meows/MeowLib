@@ -14,11 +14,13 @@ public class WCTcpTunnel {
 
     public event<DTCDataSendRequest> dataSendRequestEvent = new event<>();
 
-    private SocketChannel client1, client2;
+    private SocketClient client1, client2;
 
     private WTcpServer server;
 
     private int receiveEventId;
+
+    private byte serverId;
 
     public WCTcpTunnel(WTcpServer server, SocketClient client1, SocketClient client2) {
         this(server, client1.socketChannel(), client2.socketChannel());
@@ -28,10 +30,10 @@ public class WCTcpTunnel {
         if (!client1.isConnected() || !client2.isConnected()) {
             return;
         }
-
-        this.client1 = client1;
-        this.client2 = client2;
         this.server = server;
+        this.serverId = SocketClient.sharedConnectedServer.put(server);
+        this.client1 = new SocketClient(client1, serverId);
+        this.client2 = new SocketClient(client2, serverId);
 
         receiveEventId = server.dataReceivedEvent.bind(new DSDataReceived() {
             @Override
@@ -40,24 +42,24 @@ public class WCTcpTunnel {
                     DTCDataSendRequest.Args args = new DTCDataSendRequest.Args();
                     dataSendRequestEvent.run();
                     if (!args.canceled) {
-                        server.send(client2, data);
+                        client2().send(data);
                     }
                 } else if (client.socketChannel() == client2) {
                     DTCDataSendRequest.Args args = new DTCDataSendRequest.Args();
                     dataSendRequestEvent.run();
                     if (!args.canceled) {
-                        server.send(client1, data);;
+                       client1().send(data);
                     }
                 }
             }
         });
     }
 
-    public SocketChannel client1() {
+    public SocketClient client1() {
         return client1;
     }
 
-    public SocketChannel client2() {
+    public SocketClient client2() {
         return client2;
     }
 
