@@ -153,6 +153,9 @@ public class WTcpServer {
     public void stop() {
         SocketClient.sharedConnectedServer.remove(serverId);
         try {
+            try {
+                connectionThread.stop();
+            } catch (Exception ex) {}
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -145,6 +145,7 @@ public class WTcpClient {
     }
 
     public void close() {
+
         dataReceivedEvent.unbindAll();
         if (keepAlivePromise != null)
             keepAlivePromise.stop();
