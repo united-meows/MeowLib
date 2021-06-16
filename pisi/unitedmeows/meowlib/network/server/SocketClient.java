@@ -22,7 +22,6 @@ public class SocketClient {
     private final byte sharedIndex;
 
     private Queue<byte[]> writeQueue;
-    private final Promise writePromise;
 
     private DataInputStream dataInputStream;
 
@@ -36,17 +35,6 @@ public class SocketClient {
 
         }
         writeQueue = new ArrayDeque<>();
-
-        writePromise = async_loop(u -> {
-            if (!writeQueue.isEmpty()) {
-                byte[] data = writeQueue.poll();
-                try {
-                    socketChannel.write(ByteBuffer.wrap(data));
-                } catch (IOException e) {
-
-                }
-            }
-        }, 1);
     }
 
     public SocketChannel socketChannel() {
@@ -62,15 +50,15 @@ public class SocketClient {
     }
 
     public void close() {
-        if (writePromise != null) {
-            writePromise.stop();
-        }
-
         try {
             socketChannel().close();
         } catch (IOException e) {
 
         }
+    }
+
+    public Queue<byte[]> getWriteQueue() {
+        return writeQueue;
     }
 
     public DataInputStream getDataInputStream() {

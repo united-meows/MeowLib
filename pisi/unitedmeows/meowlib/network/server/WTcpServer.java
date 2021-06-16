@@ -15,6 +15,9 @@ import pisi.unitedmeows.meowlib.thread.kThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketOption;
+import java.net.SocketOptions;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -73,23 +76,22 @@ public class WTcpServer {
                                 }
 
                                 byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
+                                buffer.clear();
                                 if (read > 0) {
-                                    buffer.flip();
                                     if (Arrays.equals(NetworkConstants.KEEPALIVE_DATA, data)) {
                                         client.beat();
-                                        buffer.clear();
                                         continue;
                                     }
 
                                     dataReceivedEvent.run(client, data);
-                                    buffer.clear();
+
 
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        kThread.sleep(1);
+                        kThread.sleep(1L);
                     }
                 }
             });
@@ -102,15 +104,27 @@ public class WTcpServer {
                 @Override
                 public void run() {
                     while (serverSocket.isOpen()) {
+                        for (SocketClient connectedClient : connectedClients) {
+                            if (!connectedClient.getWriteQueue().isEmpty()) {
+                                byte[] sendData = connectedClient.getWriteQueue().poll();
+                                try {
+                                    int result = connectedClient.socketChannel().write(ByteBuffer.wrap(sendData));
+                                    if (result == -1) {
+                                        kick(connectedClient);
+                                    }
+                                } catch (IOException e) {
 
-
-                        kThread.sleep(1);
+                                }
+                            }
+                        }
+                        kThread.sleep(10);
                     }
                 }
             });
-
+            writeThread.start();
             serverId = SocketClient.sharedConnectedServer.put(this);
         } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
 
@@ -134,8 +148,10 @@ public class WTcpServer {
             try {
                 // Client connecting to the server
                 SocketChannel socketChannel = serverSocket.accept();
-                if (socketChannel != null) {
 
+                if (socketChannel != null) {
+                    socketChannel.socket().setTcpNoDelay(true);
+                    socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
                     socketChannel.configureBlocking(false);
                     SocketClient socketClient = new SocketClient(socketChannel, serverId);
                     socketClient.beat();

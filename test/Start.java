@@ -65,6 +65,12 @@ public class Start {
         client2.connect(IPAddress.LOOPBACK, 2173);
 
 
+        while (true) {
+            client1.send("1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW ".getBytes());
+            client2.send("2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW".getBytes());
+            kThread.sleep(5);
+        }
+
 
 
     }

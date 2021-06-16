@@ -42,7 +42,7 @@ public class WTcpClient {
         writeQueue = new ArrayDeque<>();
         try {
             socket.setTcpNoDelay(true);
-        } catch (SocketException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -52,8 +52,9 @@ public class WTcpClient {
         try {
             InetAddress inetAddress = InetAddress.getByName(ipAddress.getAddress());
             final SocketAddress socketAddress = new InetSocketAddress(inetAddress, port);
-            socket.setTcpNoDelay(true);
+
             socket.connect(socketAddress);
+            socket.setTcpNoDelay(true);
         } catch (IOException e) {
             /* find a better way for exceptions */
         }
@@ -100,9 +101,7 @@ public class WTcpClient {
                 while (socket.isConnected()) {
                     if (!writeQueue.isEmpty()) {
                         byte[] current = writeQueue.poll();
-
                         _send(current);
-
                         kThread.sleep(10);
                     }
                 }
