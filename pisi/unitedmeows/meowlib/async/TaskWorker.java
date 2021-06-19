@@ -13,6 +13,7 @@ public class TaskWorker extends Thread {
     public TaskWorker(ITaskPool owner) {
         pool = owner;
         lastWork = curTime();
+        setDaemon(true);
     }
 
     @Override
@@ -20,6 +21,9 @@ public class TaskWorker extends Thread {
         while (running) {
             try {
                 runningTask = pool.poll();
+                if (runningTask == null) { //todo remove???
+                    return;
+                }
                 runningTask.pre();
                 runningTask.run();
                 runningTask.post();

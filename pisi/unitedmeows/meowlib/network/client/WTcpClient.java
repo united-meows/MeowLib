@@ -1,5 +1,6 @@
 package pisi.unitedmeows.meowlib.network.client;
 
+import jdk.net.ExtendedSocketOptions;
 import pisi.unitedmeows.meowlib.async.Async;
 import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.clazz.event;
@@ -42,6 +43,8 @@ public class WTcpClient {
         writeQueue = new ArrayDeque<>();
         try {
             socket.setTcpNoDelay(true);
+
+            socket.setOption(ExtendedSocketOptions.TCP_QUICKACK, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,6 +57,7 @@ public class WTcpClient {
             final SocketAddress socketAddress = new InetSocketAddress(inetAddress, port);
 
             socket.connect(socketAddress);
+            socket.setOption(ExtendedSocketOptions.TCP_QUICKACK, true);
             socket.setTcpNoDelay(true);
         } catch (IOException e) {
             /* find a better way for exceptions */
@@ -89,7 +93,6 @@ public class WTcpClient {
         if (writeThread != null) {
             writeThread.stop();
         }
-
         writeThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -149,6 +152,22 @@ public class WTcpClient {
         if (keepAlivePromise != null)
             keepAlivePromise.stop();
 
+
+        try {
+            if (writeThread != null) {
+                writeThread.stop();
+            }
+        } catch (Exception ex) {
+
+        }
+
+        try {
+            if (receiveThread != null) {
+                receiveThread.stop();
+            }
+        } catch (Exception ex) {
+
+        }
         writeQueue.clear();
         try {
             socket.close();

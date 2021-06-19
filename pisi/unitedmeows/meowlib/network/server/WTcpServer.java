@@ -2,6 +2,7 @@ package pisi.unitedmeows.meowlib.network.server;
 
 import static pisi.unitedmeows.meowlib.async.Async.*;
 
+import jdk.net.ExtendedSocketOptions;
 import pisi.unitedmeows.meowlib.async.Promise;
 import pisi.unitedmeows.meowlib.clazz.event;
 import pisi.unitedmeows.meowlib.ex.Ex;
@@ -61,7 +62,10 @@ public class WTcpServer {
         try {
             serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
+
+            serverSocket.setOption(ExtendedSocketOptions.TCP_QUICKACK , true);
             serverSocket.bind(new InetSocketAddress(bindAddress().getAddress(), port));
+
             readingThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -75,17 +79,14 @@ public class WTcpServer {
                                     continue;
                                 }
 
-                                byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
-                                buffer.clear();
                                 if (read > 0) {
+                                    byte[] data = Arrays.copyOfRange(buffer.array(), 0, read);
+                                    buffer.clear();
                                     if (Arrays.equals(NetworkConstants.KEEPALIVE_DATA, data)) {
                                         client.beat();
                                         continue;
                                     }
-
                                     dataReceivedEvent.run(client, data);
-
-
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -152,6 +153,7 @@ public class WTcpServer {
                 if (socketChannel != null) {
                     socketChannel.socket().setTcpNoDelay(true);
                     socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                    socketChannel.setOption(ExtendedSocketOptions.TCP_QUICKACK, true);
                     socketChannel.configureBlocking(false);
                     SocketClient socketClient = new SocketClient(socketChannel, serverId);
                     socketClient.beat();

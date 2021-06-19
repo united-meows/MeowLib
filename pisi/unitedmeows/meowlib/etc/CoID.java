@@ -11,7 +11,7 @@ public class CoID implements Comparable<CoID> {
     public static final String DIGITS = "0123456789";
     public static final String ALL_LOWERCASE = "abcdefghijklmnoprstuvyzxq";
     public static final String SPECIAL_CHARS = "COMPLEX2173";
-    private static final Pattern coidPatern = Pattern.compile("[COMPLEX2173]{2}\\$[A-Z][0-9][A-Z][0-9]\\-[a-z]{2}[0-9]\\-[COMPLEX2173][A-Z][a-z][A-Z]{3}[a-z]{2}\\-[0-9]{2}");
+    private static final Pattern coidPattern = Pattern.compile("[COMPLEX2173]{2}\\$[A-Z][0-9][A-Z][0-9]\\-[a-z]{2}[0-9]\\-[COMPLEX2173][A-Z][a-z][A-Z]{3}[a-z]{2}\\-[0-9]{2}");
     private static Random random = new Random();
     private static final int COID_LENGTH = 23;
 
@@ -92,7 +92,7 @@ public class CoID implements Comparable<CoID> {
         if (coid.length() != 23) {
             return false;
         }
-        return coidPatern.matcher(coid).matches();
+        return coidPattern.matcher(coid).matches();
     }
 
     public static boolean isLegal(CoID coID) {

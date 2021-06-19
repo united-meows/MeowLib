@@ -1,6 +1,5 @@
 package pisi.unitedmeows.meowlib.memory;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import pisi.unitedmeows.meowlib.utils.ImageUtils;
 
 import java.awt.image.BufferedImage;

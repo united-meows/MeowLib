@@ -17,6 +17,7 @@ import pisi.unitedmeows.meowlib.async.Task;
 
 import pisi.unitedmeows.meowlib.clazz.onion;
 import pisi.unitedmeows.meowlib.clazz.prop;
+import pisi.unitedmeows.meowlib.clazz.updatable;
 import pisi.unitedmeows.meowlib.etc.CoID;
 
 import pisi.unitedmeows.meowlib.ex.impl.NotFoundEx;
@@ -33,49 +34,25 @@ import pisi.unitedmeows.meowlib.network.server.events.DSDataReceived;
 import pisi.unitedmeows.meowlib.network.server.events.DSConnectionRequest;
 import pisi.unitedmeows.meowlib.network.server.WTcpServer;
 import pisi.unitedmeows.meowlib.signal.Signal;
+import pisi.unitedmeows.meowlib.signal.SignalApp;
+import pisi.unitedmeows.meowlib.signal.SignalServer;
 import pisi.unitedmeows.meowlib.thread.kThread;
 
 public class Start {
 
+    private static final updatable<String> variable = new updatable<String>("", 200) {
+        @Override
+        public void update() {
+            value += "e";
+        }
+    };
+
     // i hate java
     public static void main(String[] args) throws InterruptedException {
-        WTcpServer server = new WTcpServer(IPAddress.LOOPBACK, 2173);
-
-        server.listen();
-
-        server.dataReceivedEvent.bind(new DSDataReceived() {
-            @Override
-            public void onDataReceived(SocketClient client, byte[] data) {
-                System.out.println("SERVER << " + new String(data) );
-            }
-        });
-
-        server.connectionRequestEvent.bind(new DSConnectionRequest() {
-            @Override
-            public void onClientConnecting(SocketClient client) {
-                System.out.println("Someone joined");
-            }
-        });
-
-
-        WTcpClient client1 = new WTcpClient();
-        client1.connect(IPAddress.LOOPBACK, 2173);
-
-        WTcpClient client2 = new WTcpClient();
-        client2.connect(IPAddress.LOOPBACK, 2173);
-
-
         while (true) {
-            client1.send("1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW 1 MEOW MEOW MEOW ".getBytes());
-            client2.send("2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW 2 MEOW MEOW MEOW".getBytes());
-            kThread.sleep(5);
+            System.out.println(variable.get());
+            kThread.sleep(300);
         }
-
-
-
     }
-
-
-
 
 }
