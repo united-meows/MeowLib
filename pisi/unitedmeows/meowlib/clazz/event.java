@@ -1,52 +1,38 @@
 package pisi.unitedmeows.meowlib.clazz;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import pisi.unitedmeows.meowlib.etc.Tuple;
 import pisi.unitedmeows.meowlib.random.WRandom;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
-
 public class event<X extends delegate> {
+	private final HashMap<Integer, Tuple<X, Method>> delegates;
 
-    private HashMap<Integer, Tuple<X, Method>> delegates;
+	public event() { delegates = new HashMap<>(); }
 
-    public event() {
-        delegates = new HashMap<>();
-    }
+	public int bind(final X delegate) {
+		final int id = WRandom.BASIC.nextInt();
+		final Method method = delegate.getClass().getDeclaredMethods()[0];
+		if (!method.isAccessible()) method.setAccessible(true);
+		delegates.put(id, new Tuple<>(delegate, method));
+		return id;
+	}
 
-    public int bind(X delegate) {
-        int id = WRandom.BASIC.nextInt();
-        Method method = delegate.getClass().getDeclaredMethods()[0];
-        if (!method.isAccessible()) {
-            method.setAccessible(true);
-        }
-        delegates.put(id, new Tuple<>(delegate, method));
-        return id;
-    }
+	public void unbindAll() { delegates.clear(); }
 
-    public void unbindAll() {
-        delegates.clear();
-    }
+	public void unbind(final int id) { delegates.remove(id); }
 
-    public void unbind(int id) {
-        delegates.remove(id);
-    }
-
-    public void run(Object... params) {
-        delegates.values().forEach(x-> {
-            try {
-                x.getSecond().invoke(x.getFirst(), params);
-            } catch (IllegalAccessException e) {
-
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
+	public void run(final Object... params) {
+		delegates.values().forEach(x -> {
+			try {
+				x.getSecond().invoke(x.getFirst(), params);
+			} catch (IllegalAccessException
+					| IllegalArgumentException
+					| InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		});
+	}
 }

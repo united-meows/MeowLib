@@ -1,5 +1,8 @@
 package pisi.unitedmeows.meowlib;
 
+import java.io.Serializable;
+import java.util.HashMap;
+
 import pisi.unitedmeows.meowlib.async.BasicTaskPool;
 import pisi.unitedmeows.meowlib.async.ITaskPool;
 import pisi.unitedmeows.meowlib.etc.IAction;
@@ -10,76 +13,50 @@ import pisi.unitedmeows.meowlib.ex.ExceptionManager;
 import pisi.unitedmeows.meowlib.variables.ubyte;
 import pisi.unitedmeows.meowlib.variables.uint;
 
-import java.io.Serializable;
-import java.util.HashMap;
-
 public class MeowLib {
+	/* change this to meowlib map */
+	private static HashMap<MLibSettings, MLibSetting<Serializable>> SETTINGS;
+	private static ITaskPool taskPool;
+	static {
+		SETTINGS = new HashMap<>(); /* use EnumMap sometime for better performance */
+		taskPool = new BasicTaskPool();
+		setup();
+	}
 
-    /* change this to meowlib map */
-    private static HashMap<MLibSettings, MLibSetting<Serializable>> SETTINGS;
+	private static void setup() {
+		for (final MLibSettings setting : MLibSettings.values()) SETTINGS.put(setting, new MLibSetting<Serializable>(setting, (Serializable) setting.getValue()));
+		taskPool.setup();
+	}
 
-    private static ITaskPool taskPool;
+	/* change this method name */
+	public static HashMap<MLibSettings, MLibSetting<Serializable>> mLibSettings() { return SETTINGS; }
 
-    static {
-        SETTINGS = new HashMap<>();
-        taskPool = new BasicTaskPool();
-        setup();
-    }
+	public static ubyte ubyte(final byte value) { return new ubyte(value); }
 
-    private static void setup() {
-        for (MLibSettings setting : MLibSettings.values()) {
-            SETTINGS.put(setting, new MLibSetting<Serializable>(setting, (Serializable)setting.getValue()));
-        }
-        taskPool.setup();
-    }
-    /* change this method name */
-    public static HashMap<MLibSettings, MLibSetting<Serializable>> mLibSettings() {
-        return SETTINGS;
-    }
+	public static ubyte ubyte(final int value) { return new ubyte(ubyte.convert(value)); }
 
+	public static uint uint(final int value) { return new uint(value); }
 
-    public static ubyte ubyte(byte value) {
-        return new ubyte(value);
-    }
+	public static uint uint(final long value) { return new uint(uint.convert(value)); }
 
-    public static ubyte ubyte(int value) {
-        return new ubyte(ubyte.convert(value));
-    }
+	public static <X extends Ex> void throwEx(final X ex) { ExceptionManager.throwEx(ex); }
 
-    public static uint uint(int value) {
-        return new uint(value);
-    }
+	public static <X extends Ex> X lastError() { return ExceptionManager.lastError(); }
 
-    public static uint uint(long value) {
-        return new uint(uint.convert(value));
-    }
+	public static void useTaskPool(final ITaskPool newPool) {
+		if (taskPool != null) taskPool.close();
+		taskPool = newPool;
+		taskPool.setup();
+	}
 
-    public static <X extends Ex> void throwEx(X ex) {
-        ExceptionManager.throwEx(ex);
-    }
+	public static ITaskPool getTaskPool() { return taskPool; }
 
-    public static <X extends Ex> X lastError() {
-        return ExceptionManager.lastError();
-    }
-
-    public static void useTaskPool(ITaskPool newPool) {
-        if (taskPool != null) {
-            taskPool.close();
-        }
-        taskPool = newPool;
-        taskPool.setup();
-    }
-
-    public static ITaskPool getTaskPool() {
-        return taskPool;
-    }
-
-    public static Exception run(IAction action) {
-        try {
-            action.run();
-            return null;
-        } catch (Exception ex) {
-            return ex;
-        }
-    }
+	public static Exception run(final IAction action) {
+		try {
+			action.run();
+			return null;
+		} catch (final Exception ex) {
+			return ex;
+		}
+	}
 }

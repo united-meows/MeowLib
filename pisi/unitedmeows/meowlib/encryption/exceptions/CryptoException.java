@@ -1,18 +1,15 @@
 package pisi.unitedmeows.meowlib.encryption.exceptions;
 
 public class CryptoException extends Exception {
-   public CryptoException()
-   {}
+	private static final long serialVersionUID = -2821149113104976263L;
 
-   public CryptoException(String message)
-   { super(message); }
+	public CryptoException() {}
 
-   public CryptoException(String message, Throwable cause)
-   { super(message, cause); }
+	public CryptoException(final String message) { super(message); }
 
-   public CryptoException(Throwable cause)
-   { super(cause); }
+	public CryptoException(final String message, final Throwable cause) { super(message, cause); }
 
-   public CryptoException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
-   { super(message, cause, enableSuppression, writableStackTrace); }
+	public CryptoException(final Throwable cause) { super(cause); }
+
+	public CryptoException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) { super(message, cause, enableSuppression, writableStackTrace); }
 }

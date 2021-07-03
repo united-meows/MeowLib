@@ -14,18 +14,13 @@ public class BasicTaskPool implements ITaskPool {
     private List<TaskWorker> taskWorkers;
     private LinkedBlockingDeque<Task<?>> taskQueue;
     private Thread workerCThread;
-    private static long POOL_WAIT_DELAY;
 
     @Override
     public void setup() {
         taskWorkers = new ArrayList<>();
-        taskQueue = new LinkedBlockingDeque<Task<?>>();
+        taskQueue = new LinkedBlockingDeque<>();
         waitQueue = new HashMap<>();
-
-        POOL_WAIT_DELAY = (long)MeowLib.mLibSettings().get(MLibSettings.ASYNC_POLL_WAIT_DELAY).getValue();
-
         workerCThread = new Thread(this::workerC);
-        workerCThread.setDaemon(true);
         workerCThread.start();
 
         for (int i = 0; i < 5; i++) {
@@ -75,7 +70,7 @@ public class BasicTaskPool implements ITaskPool {
             for (Task<?> task : addQueue) {
                 waitQueue.remove(task);
             }
-            POOL_WAIT_DELAY = (long)MeowLib.mLibSettings().get(MLibSettings.ASYNC_POLL_WAIT_DELAY).getValue();
+
             kThread.sleep((long) MeowLib.mLibSettings().get(MLibSettings.ASYNC_CHECK_BUSY).getValue());
         }
     }
@@ -101,9 +96,10 @@ public class BasicTaskPool implements ITaskPool {
             return taskQueue.poll();
         }
 
+        long waitTime = (long)MeowLib.mLibSettings().get(MLibSettings.ASYNC_POLL_WAIT_DELAY).getValue();
 
         while (taskQueue.isEmpty()) {
-            kThread.sleep(POOL_WAIT_DELAY);
+            kThread.sleep(waitTime);
         }
 
         return taskQueue.poll();

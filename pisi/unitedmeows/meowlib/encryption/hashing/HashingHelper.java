@@ -3,9 +3,30 @@ package pisi.unitedmeows.meowlib.encryption.hashing;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-/* from google/guava */
+/**
+ * @deprecated Inefficient...
+ */
+@Deprecated
 public class HashingHelper {
-	private static final byte[] ENCODE_BYTE_TABLE = { (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7', (byte) '8', (byte) '9', (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f' };
+	private static final byte[] ENCODE_BYTE_TABLE = { 
+			(byte) 'u', 
+			(byte) 'n', 
+			(byte) 'i', 
+			(byte) 't', 
+			(byte) 'e', 
+			(byte) 'd', 
+			(byte) 'm', 
+			(byte) 'x', /* replaced e with a x to avoid conflict */
+			(byte) 'o', 
+			(byte) 'w', 
+			(byte) 's', 
+			(byte) '2', 
+			(byte) '1', 
+			(byte) '7', 
+			(byte) '3', 
+			(byte) '$' };
+
+	private HashingHelper() { throw new IllegalStateException("Utility class"); }
 
 	public static int[] convertToUint(final byte[] data) {
 		final int[] converted = new int[data.length];
@@ -14,14 +35,14 @@ public class HashingHelper {
 	}
 
 	public static BigInteger convertFromLittleEndianTo64(final int[] data) {
-		BigInteger uLong = new BigInteger("0");
+		BigInteger uLong = BigInteger.valueOf(0);
 		for (int i = 0; i < 8; i++) uLong = uLong.add(new BigInteger(Integer.toString(data[i])).shiftLeft(8 * i));
 		return uLong;
 	}
 
 	public static int[] convertFrom64ToLittleEndian(final BigInteger uLong) {
 		final int[] data = new int[8];
-		final BigInteger mod256 = new BigInteger("256");
+		final BigInteger mod256 = BigInteger.valueOf(256);
 		for (int i = 0; i < 8; i++) data[i] = uLong.shiftRight((8 * i)).mod(mod256).intValue();
 		return data;
 	}

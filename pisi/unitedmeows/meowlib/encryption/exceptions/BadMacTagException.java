@@ -1,22 +1,15 @@
 package pisi.unitedmeows.meowlib.encryption.exceptions;
 
 public class BadMacTagException extends Exception {
-	public BadMacTagException() {
-	}
+	private static final long serialVersionUID = -3410484030808188783L;
 
-	public BadMacTagException(String message) {
-		super(message);
-	}
+	public BadMacTagException() {}
 
-	public BadMacTagException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	public BadMacTagException(final String message) { super(message); }
 
-	public BadMacTagException(Throwable cause) {
-		super(cause);
-	}
+	public BadMacTagException(final String message, final Throwable cause) { super(message, cause); }
 
-	public BadMacTagException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
+	public BadMacTagException(final Throwable cause) { super(cause); }
+
+	public BadMacTagException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) { super(message, cause, enableSuppression, writableStackTrace); }
 }

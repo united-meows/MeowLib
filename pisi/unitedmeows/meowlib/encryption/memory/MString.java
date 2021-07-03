@@ -6,30 +6,42 @@ import java.util.Arrays;
  * memory safe strings
  */
 public class MString implements Comparable<MString> {
+	private final char[] value;
 
-    private char[] value;
+	public MString(final String input) {
+		final String encrypted = input;
+		value = new char[encrypted.length()];
+		int i = 0;
+		for (final char c : encrypted.toCharArray()) { value[i] = c; i++; }
+	}
 
-    public MString(String input) {
+	@Override
+	public String toString() { return Arrays.toString(value); }
 
-        final String encrypted = input;
+	@Override
+	public int compareTo(final MString o) { return 0; }
 
-        value = new char[encrypted.length()];
-        int i = 0;
-        for (char c : encrypted.toCharArray()) {
-            value[i] = c;
-            i++;
-        }
-    }
+	/**
+	 * Auto generated code.
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(value);
+		return result;
+	}
 
-
-    @Override
-    public String toString() {
-        // decrypt
-        return value.toString();
-    }
-
-    @Override
-    public int compareTo(MString o) {
-        return 0;
-    }
+	/**
+	 * Auto generated code.
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		final MString other = (MString) obj;
+		if (!Arrays.equals(value, other.value)) return false;
+		return true;
+	}
 }

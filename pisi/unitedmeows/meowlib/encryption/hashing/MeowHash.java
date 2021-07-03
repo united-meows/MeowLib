@@ -41,6 +41,7 @@ public enum MeowHash {
 		doKeccakf(uState);
 		final ByteArrayOutputStream byteResults = new ByteArrayOutputStream();
 		int tOutputLen = len / 8;
+		// FIXME this will be executed once...
 		while (tOutputLen > 0) { blockSize = min(tOutputLen, rateInBytes); for (int i = 0; i < blockSize; i++) byteResults.write((byte) uState[i]); tOutputLen -= blockSize; if (tOutputLen > 0) doKeccakf(uState); }
 		return byteResults.toByteArray();
 	}
@@ -69,7 +70,7 @@ public enum MeowHash {
 				for (int i = 0; i < 5; i++) t[i] = state[i][j];
 				for (int i = 0; i < 5; i++) { final BigInteger invertVal = t[(i + 1) % 5].xor(BIG_PRIME); state[i][j] = t[i].xor(invertVal.and(t[(i + 2) % 5])); }
 			}
-			for (int i = 0; i < 7; i++) { LFSRstate = ((LFSRstate << 1) ^ ((LFSRstate >> 7) * 0x71)) % 256; final int bitPosition = (1 << i) - 1; if ((LFSRstate & 2) != 0) state[0][0] = state[0][0].xor(new BigInteger("1").shiftLeft(bitPosition)); }
+			for (int i = 0; i < 7; i++) { LFSRstate = ((LFSRstate << 1) ^ ((LFSRstate >> 7) * 0x71)) % 256; final int bitPosition = (1 << i) - 1; if ((LFSRstate & 2) != 0) state[0][0] = state[0][0].xor(BigInteger.valueOf(1).shiftLeft(bitPosition)); }
 		}
 	}
 }
