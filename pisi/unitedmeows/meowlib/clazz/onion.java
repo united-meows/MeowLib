@@ -3,7 +3,7 @@ package pisi.unitedmeows.meowlib.clazz;
 import pisi.unitedmeows.meowlib.memory.WMemory;
 
 public class onion<X> {
-
+    
     private int pointer;
 
     public onion() {
